@@ -5,6 +5,7 @@ BinaryFileIn::BinaryFileIn(std::string Path)
 	FileStream = std::ifstream(Path, std::ios::binary | std::ios::ate);
 	FileSize = FileStream.tellg(); //dziêki ios::ate jesteœmy od razu na koñcu pliku, wiêc sprawdzamy
 	FileStream.seekg(0);           //jego wielkoœæ poprzez tell() i wracamy na pocz¹tek poprzez seek()
+	if (FileSize == 0) std::cout << "BinaryFile - warning - input file is empty";
 }
 
 BinaryFileIn::~BinaryFileIn()
@@ -24,7 +25,7 @@ bool BinaryFileIn::NextBytes(byte*& Bytes, int64& Length)
 
 bool BinaryFileIn::IsOK()
 {
-	return !FileStream.bad();
+	return !(FileStream.bad() || FileStream.fail());
 }
 
 bool BinaryFileIn::Reset()

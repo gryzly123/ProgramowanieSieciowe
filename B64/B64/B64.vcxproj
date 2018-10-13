@@ -142,9 +142,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <Text Include="ReadMe.txt" />
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="Base64.h" />
     <ClInclude Include="BinaryFile.h" />
     <ClInclude Include="stdafx.h" />
