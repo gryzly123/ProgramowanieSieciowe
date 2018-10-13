@@ -14,16 +14,6 @@ void PrintHelp(std::string PrintReason)
 
 int main(int argc, const char* argv[])
 {
-	for (int i = 0; i < argc; ++i)
-	{
-		std::string Arg(argv[i]);
-		std::cout << "Arg #";
-		std::cout << i;
-		std::cout << " ";
-		std::cout << Arg;
-		std::cout << std::endl;
-	}
-
 	if (argc != 4)
 	{
 		PrintHelp("Incorrect number of arguments passed.\n");
