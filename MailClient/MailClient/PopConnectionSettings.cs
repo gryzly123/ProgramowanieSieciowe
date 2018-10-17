@@ -2,7 +2,7 @@
 
 namespace MailClient
 {
-    class PopConnectionSettings
+    public class PopConnectionSettings
     {
         public string Hostname
         {
@@ -10,10 +10,11 @@ namespace MailClient
             set;
         }
 
+        private int ActualPort;
         public int Port
         {
-            get { return Port; }
-            set { if (value < 65536) Port = value; }
+            get { return ActualPort; }
+            set { if (value < 65536) ActualPort = value; }
         }
 
         public string UserLogin
@@ -28,10 +29,11 @@ namespace MailClient
             set;
         }
 
+        private double ActualRefreshRateSeconds;
         public double RefreshRateSeconds
         {
-            get { return RefreshRateSeconds; }
-            set { if (value > 1.0) RefreshRateSeconds = value; }
+            get { return ActualRefreshRateSeconds; }
+            set { if (value > 1.0) ActualRefreshRateSeconds = value; }
         }
 
         //init ustawień z domyślnymi ustawieniami

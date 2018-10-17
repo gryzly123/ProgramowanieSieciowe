@@ -15,6 +15,20 @@ namespace MailClient
         public Form1()
         {
             InitializeComponent();
+
+            PopConnectionSettings Config = new PopConnectionSettings();
+            //Config.Hostname = "pop3.wp.pl";
+            //Config.Port = 995;
+            //Config.UserLogin = "ps45575@wp.pl";
+            Config.Hostname = "127.0.0.1";
+            Config.Port = 110;
+            Config.UserLogin = "newuser";
+
+            PopConnection Con = new PopConnection();
+            string Response = "";
+            Con.StartConnection(Config, ref Response);
+            MessageBox.Show(Response);
+
         }
     }
 }
