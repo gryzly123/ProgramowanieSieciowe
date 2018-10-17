@@ -8,20 +8,26 @@ using System.Text;
 
 namespace MailClient
 {
+    public delegate void DebugMessaging(bool IsIncoming, string Message);
+
     public class PopConnection
     {
-        TcpClient TcpConnection;
-        bool IsConnected = false;
-        BackgroundWorker TcpAsync;
-        List<string> MessageQueue;
+        private Socket PopSocket;
+        private bool ConnectionOpened = false;
+        private bool ConnectionActive = false;
+        public DebugMessaging OnLineSentOrReceived;// = new DebugMessaging();
 
-        public bool StartConnection(PopConnectionSettings WithConfig, ref string FailReason)
+        public bool IsConnected()
+        {
+            return PopSocket == null && ConnectionOpened;
+        }
+
+        public bool StartConnection(PopConnectionSettings WithConfig)
         {
             //jeśli jesteśmy już połączeni, nie łączymy się jeszcze raz
-            if (IsConnected)
+            if (ConnectionOpened)
             {
-                FailReason = "already_connected";
-                return false;
+                throw new Exception("already_connected");
             }
 
             //pobieramy adres IP
@@ -33,39 +39,66 @@ namespace MailClient
                 IPAddress[] ResolvedHostname = Dns.GetHostAddresses(WithConfig.Hostname);
                 if(ResolvedHostname.Length == 0)
                 {
-                    FailReason = "couldnt_resolve_hostname " + WithConfig.Hostname;
-                    return false;
+                    throw new Exception("couldnt_resolve_hostname");
                 }
                 Ip = ResolvedHostname[0];
             }
 
             //tworzymy endpointa i socketa
             IPEndPoint EndPoint = new IPEndPoint(Ip, WithConfig.Port);
-            Socket SendSocket = new Socket(Ip.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
 
             try
             {
-                SendSocket.Connect(EndPoint);
-                string TestMessage = "USER " + WithConfig.UserLogin + "\r\n";
-
-                SendSocket.Send(Encoding.ASCII.GetBytes(TestMessage));
-                SendSocket.Send(Encoding.ASCII.GetBytes(TestMessage));
-
-                System.Threading.Thread.Sleep(1000);
-
-                byte[] Response = new byte[1024];
-                SendSocket.Receive(Response);
-                FailReason = (Encoding.ASCII.GetString(Response));
+                PopSocket = new Socket(Ip.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+                PopSocket.Connect(EndPoint);
+                
             }
             catch (Exception e)
             {
-                FailReason = ("Connection error: " + e.ToString());
-                return false;
+                throw new Exception("connection_init_error: " + e.ToString());
             }
 
             return true;
         }
 
+        public bool CloseConnection()
+        {
+            if (!IsConnected()) return true;
+            try
+            {
+                PopSocket.Shutdown(SocketShutdown.Both);
+                PopSocket.Close();
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show("Connection was not closed gracefully.");
+            }
 
+            ConnectionOpened = false;
+            ConnectionActive = false;
+            PopSocket = null;
+            return true;
+        }
+
+        public bool ExecuteCommand(PopCommand Command)
+        {
+            byte[] Response = new byte[1024];
+            bool Success = true;
+            while (Command.VerbsLeft() > 0 && Success)
+            {
+                string Msg = Command.BuildVerb();
+                MessageBox.Show("OUT: " + Msg);
+                PopSocket.Send(Encoding.ASCII.GetBytes(Msg));
+
+                //OnLineSentOrReceived(false, Msg);
+
+                PopSocket.Receive(Response);
+                Msg = Encoding.ASCII.GetString(Response);
+                MessageBox.Show("IN: " + Msg);
+                Success = Command.ParseResponse(Msg);
+            }
+
+            return Success;
+        }
     }
 }
