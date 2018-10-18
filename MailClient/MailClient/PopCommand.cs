@@ -12,6 +12,7 @@ namespace MailClient
     {
         public const string EOL = "\r\n";
         public const string OK = "+OK ";
+        public const string ERROR = "+ERR";
         public abstract string BuildVerb();
         public abstract bool ParseResponse(string Response);
         public abstract int VerbsLeft();
@@ -29,6 +30,9 @@ namespace MailClient
             AcceptedPassword,
             Failed
         } private AuthorizationState AuthState;
+
+        public EventHandler OnUserLoginSuccess;
+        public EventHandler OnUserLoginFailed;
 
         PopConnectionSettings Creds;
 
@@ -69,6 +73,7 @@ namespace MailClient
 
                 case AuthorizationState.SentPassword:
                     AuthState = AuthorizationState.AcceptedPassword;
+                    
                     return true;
             }
 

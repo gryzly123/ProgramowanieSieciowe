@@ -5,14 +5,22 @@ using System.Collections.Concurrent;
 
 namespace MailClient
 {
+    public enum PopState
+    {
+        Off,
+        Authorization,
+        Transaction,
+        Update
+    }
 
-    class PopService
+    public class PopService
     {
         private PopConnectionSettings CurrentConfig = new PopConnectionSettings();
         private PopConnection Connection = new PopConnection();
         private ConcurrentQueue<PopCommand> CommandQueue = new ConcurrentQueue<PopCommand>();
         private BackgroundWorker ServerThread;
         private bool ShutdownRequested = false;
+        private PopState State = PopState.Off;
 
         public EventHandler OnConnectionOpened;
         public EventHandler OnConnectionClosed;
