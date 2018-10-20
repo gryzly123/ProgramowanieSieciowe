@@ -45,17 +45,20 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="MailMessage.cs" />
+    <Compile Include="Inbox\MailMessage.cs" />
     <Compile Include="MainWindow.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="MainWindow.Designer.cs">
       <DependentUpon>MainWindow.cs</DependentUpon>
     </Compile>
-    <Compile Include="PopCommand.cs" />
-    <Compile Include="PopConnection.cs" />
-    <Compile Include="PopConnectionSettings.cs" />
-    <Compile Include="PopService.cs" />
+    <Compile Include="Pop\Commands\PcAuthorize.cs" />
+    <Compile Include="Pop\Commands\PcFetchMessage.cs" />
+    <Compile Include="Pop\Commands\PcListMessages.cs" />
+    <Compile Include="Pop\PopCommand.cs" />
+    <Compile Include="Pop\PopConnection.cs" />
+    <Compile Include="Pop\PopConnectionSettings.cs" />
+    <Compile Include="Pop\PopService.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="MainWindow.resx">

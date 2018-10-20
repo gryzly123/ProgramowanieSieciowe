@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Windows.Forms;
 
 namespace MailClient
@@ -6,6 +7,7 @@ namespace MailClient
     public partial class MainWindow : Form
     {
         private PopService Service;
+        private MailDirectory Directory = new MailDirectory("Inbox");
 
         public MainWindow()
         {
@@ -31,6 +33,23 @@ namespace MailClient
             Service.OnConnectionOpened += OnPopConnectionEstablished;
             Service.OnLineSentOrReceived += ParseDebugMsg;
             Service.RequestStartService();
+
+            Directory.OnMessageReceived += HandleChageInInbox;
+
+            Service.PushNewCommand(new PcAuthorize());
+            PcListMessages ReceiveCmd = new PcListMessages(Directory);
+            ReceiveCmd.OnNewMessagesReceived += HandleMsgs;
+            Service.PushNewCommand(ReceiveCmd);
+
+        }
+
+        private void HandleChageInInbox(MailDirectory AtDirectory, MailMessage AtMessage)
+        {
+            listBox2.Invoke(new Action(() =>
+            {
+            if (AtDirectory == Directory)
+                listBox2.Items.Insert(0, AtMessage.PopUid);
+            }));
         }
 
         private void ParseDebugMsg(bool IsIncoming, string Message)
@@ -47,13 +66,26 @@ namespace MailClient
             button1.Enabled = false;
         }
 
-        private bool xD = false;
-        private void button2_Click(object sender, EventArgs e)
+        private void HandleMsgs(Dictionary<int, string> NewMessages)
         {
-            if(xD) Service.PushNewCommand(new PcListMessages());
-            else Service.PushNewCommand(new PcAuthorize());
+            foreach (KeyValuePair<int, string> Message in NewMessages)
+            {
+                //MessageBox.Show(Message.Key.ToString() + " -- " + Message.Value);
+                Service.PushNewCommand(new PcFetchMessage(Directory, Message.Key, Message.Value));
+            }
+        }
 
-            xD = true;
+        private void listBox2_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            string Uid = listBox2.Items[listBox2.SelectedIndex].ToString();
+            MailMessage Message = Directory.GetMessage(Uid);
+            if(Message == null)
+            {
+                MessageBox.Show("internal error while reading message from memory");
+                return;
+            }
+
+            MessageBox.Show(Message.Message);
         }
     }
 }

@@ -84,7 +84,8 @@ namespace MailClient
                     bool Deq = CommandQueue.TryDequeue(out PopCommand Cmd);
                     if(!Connection.ExecuteCommand(Cmd))
                         OnLineSentOrReceived(false, "PopCommand error for " + Cmd.ToString());
-                } 
+                    System.Threading.Thread.Sleep(10);
+                }
                 else System.Threading.Thread.Sleep(100);
             }
 

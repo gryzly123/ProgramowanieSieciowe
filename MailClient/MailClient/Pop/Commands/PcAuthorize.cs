@@ -6,22 +6,6 @@ using System.Threading.Tasks;
 
 namespace MailClient
 {
-    public abstract class PopCommand
-    {
-        protected const string EOL = "\r\n";
-        protected const string OK = "+OK ";
-        protected const string ERROR = "-ERR";
-        internal  const string MultilineTerminator = "\r\n.\r\n";
-
-        protected PopService ParentService;
-        internal void SetPopService(PopService InService) { ParentService = InService; }
-
-        internal abstract string BuildVerb();
-        internal abstract bool ParseResponse(string Response);
-        internal abstract int VerbsLeft();
-        internal abstract bool IsMultiline();
-    }
-
     public class PcAuthorize : PopCommand
     {
         enum AuthorizationState
@@ -102,33 +86,6 @@ namespace MailClient
         internal override bool IsMultiline()
         {
             return false;
-        }
-    }
-    
-    public class PcListMessages : PopCommand
-    {
-        private bool MessageSent = false;
-        private bool ResponseTerminated = false;
-
-        internal override string BuildVerb()
-        {
-            return "UIDL " + EOL;
-        }
-
-        internal override bool ParseResponse(string Response)
-        {
-            
-            return false;
-        }
-
-        internal override int VerbsLeft()
-        {
-            return MessageSent ? 0 : 1;
-        }
-
-        internal override bool IsMultiline()
-        {
-            return true;
         }
     }
 }

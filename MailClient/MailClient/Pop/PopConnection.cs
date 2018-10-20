@@ -82,8 +82,8 @@ namespace MailClient
 
         public bool ExecuteCommand(PopCommand Command)
         {
-            bool Success = true;
-            while (Command.VerbsLeft() > 0 && Success)
+            bool ErrorEncountered = false;
+            while (Command.VerbsLeft() > 0 && !ErrorEncountered)
             {
                 string Msg = Command.BuildVerb();
                 PopSocket.Send(Encoding.ASCII.GetBytes(Msg));
@@ -99,11 +99,11 @@ namespace MailClient
                 }
                 while (Command.IsMultiline() && !Msg.EndsWith(PopCommand.MultilineTerminator));
 
-                Success = Command.ParseResponse(Msg);
+                ErrorEncountered = !Command.ParseResponse(Msg);
                 OnLineSentOrReceived(true, Msg);
             }
 
-            return Success;
+            return !ErrorEncountered;
         }
     }
 }
