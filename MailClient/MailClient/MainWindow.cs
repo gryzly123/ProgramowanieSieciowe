@@ -1,11 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace MailClient
@@ -36,12 +29,17 @@ namespace MailClient
             Service = new PopService();
             Service.PushNewConfig(Config);
             Service.OnConnectionOpened += OnPopConnectionEstablished;
+            Service.OnLineSentOrReceived += ParseDebugMsg;
             Service.RequestStartService();
         }
 
         private void ParseDebugMsg(bool IsIncoming, string Message)
         {
-            listBox1.Items.Insert(0, (IsIncoming ? "Server" : "Client") + ": Message");
+            listBox1.Invoke(new Action(() =>
+            {
+                listBox1.Items.Add((IsIncoming ? "Server" : "Client") + ": " + Message);
+                listBox1.SelectedIndex = listBox1.Items.Count - 1;
+            }));
         }
 
         private void OnPopConnectionEstablished(object sender, EventArgs e)
@@ -49,9 +47,13 @@ namespace MailClient
             button1.Enabled = false;
         }
 
+        private bool xD = false;
         private void button2_Click(object sender, EventArgs e)
         {
-            Service.PushNewCommand(new PcAuthorize(Service.GetConfig()));
+            if(xD) Service.PushNewCommand(new PcListMessages());
+            else Service.PushNewCommand(new PcAuthorize());
+
+            xD = true;
         }
     }
 }

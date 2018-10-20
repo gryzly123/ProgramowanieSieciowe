@@ -20,10 +20,14 @@ namespace MailClient
         private ConcurrentQueue<PopCommand> CommandQueue = new ConcurrentQueue<PopCommand>();
         private BackgroundWorker ServerThread;
         private bool ShutdownRequested = false;
-        private PopState State = PopState.Off;
+        internal PopState State = PopState.Off;
 
         public EventHandler OnConnectionOpened;
         public EventHandler OnConnectionClosed;
+
+        public DebugMessaging OnLineSentOrReceived;
+        public void OnLineSentPassthrough(bool In, string Msg) { OnLineSentOrReceived(In, Msg); }
+
 
         public void RequestStartService()
         {
@@ -31,12 +35,14 @@ namespace MailClient
             if(Connection.IsConnected()) throw new Exception("connection_exists");
 
             //może rzucić wyjątkiem, ale obecna metoda też powinna być używana z try-catchem
+            Connection.OnLineSentOrReceived += OnLineSentPassthrough;
             Connection.StartConnection(CurrentConfig);
 
             ServerThread = new BackgroundWorker();
             ServerThread.DoWork += ServerLoop;
             ServerThread.RunWorkerAsync();
 
+            State = PopState.Authorization;
             OnConnectionOpened(this, new EventArgs());
         }
 
@@ -53,6 +59,7 @@ namespace MailClient
 
         public void PushNewCommand(PopCommand NewCommand)
         {
+            NewCommand.SetPopService(this);
             CommandQueue.Enqueue(NewCommand);
         }
 
@@ -70,16 +77,15 @@ namespace MailClient
 
         private void ServerLoop(object sender, DoWorkEventArgs e)
         {
-            bool Success = true;
-            while(!ShutdownRequested && Success)
+            while(!ShutdownRequested)
             {
                 if (CommandQueue.Count > 0)
                 {
-                    PopCommand Cmd = null;
-                    bool Deq = CommandQueue.TryDequeue(out Cmd);
-                    Success = Connection.ExecuteCommand(Cmd);
+                    bool Deq = CommandQueue.TryDequeue(out PopCommand Cmd);
+                    if(!Connection.ExecuteCommand(Cmd))
+                        OnLineSentOrReceived(false, "PopCommand error for " + Cmd.ToString());
                 } 
-                else System.Threading.Thread.Sleep(1000);
+                else System.Threading.Thread.Sleep(100);
             }
 
             ShutdownRequested = false;

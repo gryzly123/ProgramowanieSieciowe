@@ -82,20 +82,25 @@ namespace MailClient
 
         public bool ExecuteCommand(PopCommand Command)
         {
-            byte[] Response = new byte[1024];
             bool Success = true;
             while (Command.VerbsLeft() > 0 && Success)
             {
                 string Msg = Command.BuildVerb();
-                MessageBox.Show("OUT: " + Msg);
                 PopSocket.Send(Encoding.ASCII.GetBytes(Msg));
+                OnLineSentOrReceived(false, Msg);
 
-                //OnLineSentOrReceived(false, Msg);
+                Msg = string.Empty;
 
-                PopSocket.Receive(Response);
-                Msg = Encoding.ASCII.GetString(Response);
-                MessageBox.Show("IN: " + Msg);
+                do
+                {
+                    byte[] Response = new byte[PopSocket.ReceiveBufferSize];
+                    int ResponseLen = PopSocket.Receive(Response);
+                    Msg += Encoding.ASCII.GetString(Response, 0, ResponseLen);
+                }
+                while (Command.IsMultiline() && !Msg.EndsWith(PopCommand.MultilineTerminator));
+
                 Success = Command.ParseResponse(Msg);
+                OnLineSentOrReceived(true, Msg);
             }
 
             return Success;
