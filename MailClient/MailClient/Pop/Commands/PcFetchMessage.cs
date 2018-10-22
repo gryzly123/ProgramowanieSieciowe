@@ -12,7 +12,6 @@ namespace MailClient
         private int    CurrentId;
         private string CurrentUid;
 
-        private MailMessage CurrentMsg;
         private bool CommandSent = false;
 
         public PcFetchMessage(MailDirectory TargetDir, int TargetId, string TargetUid)

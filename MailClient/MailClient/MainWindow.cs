@@ -12,6 +12,7 @@ namespace MailClient
         public MainWindow()
         {
             InitializeComponent();
+            PopConnectionSettings Settings = new PopConnectionSettings("c:\\cfg.xml");
         }
 
         private void button1_Click(object sender, EventArgs e)
