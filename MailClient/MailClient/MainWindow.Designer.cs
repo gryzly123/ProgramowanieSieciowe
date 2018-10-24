@@ -28,40 +28,42 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.button1 = new System.Windows.Forms.Button();
-            this.listBox1 = new System.Windows.Forms.ListBox();
-            this.listBox2 = new System.Windows.Forms.ListBox();
+            this.ButtonConnectPop = new System.Windows.Forms.Button();
+            this.ListboxLog = new System.Windows.Forms.ListBox();
+            this.ListboxMessages = new System.Windows.Forms.ListBox();
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
-            this.button2 = new System.Windows.Forms.Button();
+            this.ButtonShowLog = new System.Windows.Forms.Button();
+            this.ButtonConfig = new System.Windows.Forms.Button();
+            this.ButtonSendMessage = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
-            // button1
+            // ButtonConnectPop
             // 
-            this.button1.Location = new System.Drawing.Point(12, 16);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(167, 33);
-            this.button1.TabIndex = 0;
-            this.button1.Text = "Start connection";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
+            this.ButtonConnectPop.Location = new System.Drawing.Point(12, 16);
+            this.ButtonConnectPop.Name = "ButtonConnectPop";
+            this.ButtonConnectPop.Size = new System.Drawing.Size(114, 33);
+            this.ButtonConnectPop.TabIndex = 0;
+            this.ButtonConnectPop.Text = "Start connection";
+            this.ButtonConnectPop.UseVisualStyleBackColor = true;
+            this.ButtonConnectPop.Click += new System.EventHandler(this.ButtonConnectPop_Click);
             // 
-            // listBox1
+            // ListboxLog
             // 
-            this.listBox1.FormattingEnabled = true;
-            this.listBox1.Location = new System.Drawing.Point(241, 32);
-            this.listBox1.Name = "listBox1";
-            this.listBox1.Size = new System.Drawing.Size(434, 316);
-            this.listBox1.TabIndex = 2;
+            this.ListboxLog.FormattingEnabled = true;
+            this.ListboxLog.Location = new System.Drawing.Point(12, 226);
+            this.ListboxLog.Name = "ListboxLog";
+            this.ListboxLog.Size = new System.Drawing.Size(474, 212);
+            this.ListboxLog.TabIndex = 2;
             // 
-            // listBox2
+            // ListboxMessages
             // 
-            this.listBox2.FormattingEnabled = true;
-            this.listBox2.Location = new System.Drawing.Point(12, 69);
-            this.listBox2.Name = "listBox2";
-            this.listBox2.Size = new System.Drawing.Size(167, 238);
-            this.listBox2.TabIndex = 3;
-            this.listBox2.SelectedIndexChanged += new System.EventHandler(this.listBox2_SelectedIndexChanged);
+            this.ListboxMessages.FormattingEnabled = true;
+            this.ListboxMessages.Location = new System.Drawing.Point(12, 69);
+            this.ListboxMessages.Name = "ListboxMessages";
+            this.ListboxMessages.Size = new System.Drawing.Size(474, 134);
+            this.ListboxMessages.TabIndex = 3;
+            this.ListboxMessages.SelectedIndexChanged += new System.EventHandler(this.ListboxMessages_SelectedMessage);
             // 
             // label1
             // 
@@ -75,34 +77,57 @@
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(238, 16);
+            this.label2.Location = new System.Drawing.Point(12, 210);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(58, 13);
             this.label2.TabIndex = 5;
             this.label2.Text = "Server log:";
             // 
-            // button2
+            // ButtonShowLog
             // 
-            this.button2.Location = new System.Drawing.Point(12, 313);
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(167, 35);
-            this.button2.TabIndex = 6;
-            this.button2.Text = "Show server log";
-            this.button2.UseVisualStyleBackColor = true;
+            this.ButtonShowLog.Location = new System.Drawing.Point(372, 16);
+            this.ButtonShowLog.Name = "ButtonShowLog";
+            this.ButtonShowLog.Size = new System.Drawing.Size(114, 33);
+            this.ButtonShowLog.TabIndex = 6;
+            this.ButtonShowLog.Text = "Show server log";
+            this.ButtonShowLog.UseVisualStyleBackColor = true;
+            // 
+            // ButtonConfig
+            // 
+            this.ButtonConfig.Location = new System.Drawing.Point(132, 16);
+            this.ButtonConfig.Name = "ButtonConfig";
+            this.ButtonConfig.Size = new System.Drawing.Size(114, 33);
+            this.ButtonConfig.TabIndex = 7;
+            this.ButtonConfig.Text = "Open Config";
+            this.ButtonConfig.UseVisualStyleBackColor = true;
+            this.ButtonConfig.Click += new System.EventHandler(this.ButtonConfig_Click);
+            // 
+            // ButtonSendMessage
+            // 
+            this.ButtonSendMessage.Enabled = false;
+            this.ButtonSendMessage.Location = new System.Drawing.Point(252, 16);
+            this.ButtonSendMessage.Name = "ButtonSendMessage";
+            this.ButtonSendMessage.Size = new System.Drawing.Size(114, 33);
+            this.ButtonSendMessage.TabIndex = 8;
+            this.ButtonSendMessage.Text = "Send message";
+            this.ButtonSendMessage.UseVisualStyleBackColor = true;
             // 
             // MainWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(690, 357);
-            this.Controls.Add(this.button2);
+            this.ClientSize = new System.Drawing.Size(496, 452);
+            this.Controls.Add(this.ButtonSendMessage);
+            this.Controls.Add(this.ButtonConfig);
+            this.Controls.Add(this.ButtonShowLog);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
-            this.Controls.Add(this.listBox2);
-            this.Controls.Add(this.listBox1);
-            this.Controls.Add(this.button1);
+            this.Controls.Add(this.ListboxMessages);
+            this.Controls.Add(this.ListboxLog);
+            this.Controls.Add(this.ButtonConnectPop);
             this.Name = "MainWindow";
             this.Text = "MailClient (Krzysztof Niedźwiecki)";
+            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.MainWindow_FormClosed);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -110,12 +135,14 @@
 
         #endregion
 
-        private System.Windows.Forms.Button button1;
-        private System.Windows.Forms.ListBox listBox1;
-        private System.Windows.Forms.ListBox listBox2;
+        private System.Windows.Forms.Button ButtonConnectPop;
+        private System.Windows.Forms.ListBox ListboxLog;
+        private System.Windows.Forms.ListBox ListboxMessages;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.Button button2;
+        private System.Windows.Forms.Button ButtonShowLog;
+        private System.Windows.Forms.Button ButtonConfig;
+        private System.Windows.Forms.Button ButtonSendMessage;
     }
 }
 

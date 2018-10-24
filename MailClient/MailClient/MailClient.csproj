@@ -53,6 +53,12 @@
     <Compile Include="MainWindow.Designer.cs">
       <DependentUpon>MainWindow.cs</DependentUpon>
     </Compile>
+    <Compile Include="AppConfig.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="AppConfig.Designer.cs">
+      <DependentUpon>AppConfig.cs</DependentUpon>
+    </Compile>
     <Compile Include="Pop\Commands\PcAuthorize.cs" />
     <Compile Include="Pop\Commands\PcFetchMessage.cs" />
     <Compile Include="Pop\Commands\PcListMessages.cs" />
@@ -64,6 +70,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="MainWindow.resx">
       <DependentUpon>MainWindow.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="AppConfig.resx">
+      <DependentUpon>AppConfig.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

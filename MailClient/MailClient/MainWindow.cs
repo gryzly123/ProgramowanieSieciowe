@@ -7,86 +7,109 @@ namespace MailClient
     public partial class MainWindow : Form
     {
         private PopService Service;
-        private MailDirectory Directory = new MailDirectory("Inbox");
+        private const string ConfigFilename = "config.xml";
+        private MailDirectory Inbox = new MailDirectory("Inbox");
+        private bool IsPopRunning = false;
+        PopConnectionSettings PopConfig;
 
         public MainWindow()
         {
             InitializeComponent();
-            PopConnectionSettings Settings = new PopConnectionSettings("c:\\cfg.xml");
+            SetupConfig();
         }
 
-        private void button1_Click(object sender, EventArgs e)
+        private void SetupConfig()
+        {
+            PopConfig = new PopConnectionSettings();
+            if (!PopConfig.TryReadFromFile(ConfigFilename))
+                MessageBox.Show("Config file could not be parsed (either missing or corrupted).\nPlease fill your information in the config menu.");
+        }
+
+        private void ButtonConnectPop_Click(object sender, EventArgs e)
         {
             PopConnectionSettings Config = new PopConnectionSettings();
-
-            //Config.Hostname = "pop3.wp.pl";
-            //Config.Port = 995;
-            //Config.UserLogin = "ps45575@wp.pl";
-
-            Config.Hostname = "127.0.0.1";
-            Config.Port = 110;
-            Config.UserLogin = "newuser";
-            Config.UserPassword = "bepis";
-            Config.RefreshRateSeconds = 2.0f;
 
             Service = new PopService();
             Service.PushNewConfig(Config);
             Service.OnConnectionOpened += OnPopConnectionEstablished;
-            Service.OnLineSentOrReceived += ParseDebugMsg;
-            Service.RequestStartService();
+            Service.OnLineSentOrReceived += ParseDebugMessage;
+            Inbox.OnMessageReceived += AddMessageToInbox;
 
-            Directory.OnMessageReceived += HandleChageInInbox;
+            //startuję połączenie, a następnie każę klientowi zalogować się i pobrać wiadomości
+            try
+            {
+                Service.RequestStartService();
+                Service.PushNewCommand(new PcAuthorize());
 
-            Service.PushNewCommand(new PcAuthorize());
-            PcListMessages ReceiveCmd = new PcListMessages(Directory);
-            ReceiveCmd.OnNewMessagesReceived += HandleMsgs;
-            Service.PushNewCommand(ReceiveCmd);
-
+                PcListMessages ReceiveCmd = new PcListMessages(Inbox);
+                ReceiveCmd.OnNewMessagesReceived += HandleOnMessageListReceived;
+                Service.PushNewCommand(ReceiveCmd);
+                ButtonConnectPop.Enabled = false;
+            }
+            catch (Exception E)
+            {
+                MessageBox.Show("Could not connect to the server. Reason: " + E.ToString());
+            }
         }
 
-        private void HandleChageInInbox(MailDirectory AtDirectory, MailMessage AtMessage)
+        private void AddMessageToInbox(MailDirectory AtDirectory, MailMessage AtMessage)
         {
-            listBox2.Invoke(new Action(() =>
+            ListboxMessages.Invoke(new Action(() =>
             {
-            if (AtDirectory == Directory)
-                listBox2.Items.Insert(0, AtMessage.PopUid);
+            if (AtDirectory == Inbox)
+                ListboxMessages.Items.Insert(0, AtMessage.PopUid);
             }));
         }
 
-        private void ParseDebugMsg(bool IsIncoming, string Message)
+        private void ParseDebugMessage(bool IsIncoming, string Message)
         {
-            listBox1.Invoke(new Action(() =>
+            ListboxLog.Invoke(new Action(() =>
             {
-                listBox1.Items.Add((IsIncoming ? "Server" : "Client") + ": " + Message);
-                listBox1.SelectedIndex = listBox1.Items.Count - 1;
+                ListboxLog.Items.Add((IsIncoming ? "Server" : "Client") + ": " + Message);
+                ListboxLog.SelectedIndex = ListboxLog.Items.Count - 1;
             }));
         }
 
         private void OnPopConnectionEstablished(object sender, EventArgs e)
         {
-            button1.Enabled = false;
+            IsPopRunning = true;
+            ButtonConnectPop.Enabled = true;
+            ButtonConnectPop.Text = "Stop connection";
         }
 
-        private void HandleMsgs(Dictionary<int, string> NewMessages)
+        private void HandleOnMessageListReceived(Dictionary<int, string> NewMessages)
         {
             foreach (KeyValuePair<int, string> Message in NewMessages)
             {
                 //MessageBox.Show(Message.Key.ToString() + " -- " + Message.Value);
-                Service.PushNewCommand(new PcFetchMessage(Directory, Message.Key, Message.Value));
+                Service.PushNewCommand(new PcFetchMessage(Inbox, Message.Key, Message.Value));
             }
         }
 
-        private void listBox2_SelectedIndexChanged(object sender, EventArgs e)
+        private void ListboxMessages_SelectedMessage(object sender, EventArgs e)
         {
-            string Uid = listBox2.Items[listBox2.SelectedIndex].ToString();
-            MailMessage Message = Directory.GetMessage(Uid);
-            if(Message == null)
+            string Uid = ListboxMessages.Items[ListboxMessages.SelectedIndex].ToString();
+            MailMessage Message = Inbox.GetMessage(Uid);
+            if (Message == null)
             {
                 MessageBox.Show("internal error while reading message from memory");
                 return;
             }
 
             MessageBox.Show(Message.Message);
+        }
+
+        private void ButtonConfig_Click(object sender, EventArgs e)
+        {
+            new Configuration(PopConfig).ShowDialog();
+        }
+
+        private void MainWindow_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            if(Service != null) Service.RequestStopService();
+
+            if(!PopConfig.SaveConfig(ConfigFilename))
+                MessageBox.Show("Could not save your config (most likely due\nto permission issues).");
         }
     }
 }

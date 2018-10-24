@@ -11,6 +11,7 @@ namespace MailClient
         public string UserPassword;
 
         private double ActualRefreshRateSeconds;
+
         public double RefreshRateSeconds
         {
             get { return ActualRefreshRateSeconds; }
@@ -20,21 +21,32 @@ namespace MailClient
         //init ustawień z domyślnymi ustawieniami
         public PopConnectionSettings()
         {
-            Hostname = "";
+            Hostname = "localhost";
             Port = 110;
             UserLogin = "";
             UserPassword = "";
             RefreshRateSeconds = 15.0;
         }
 
-        //parsowanie ustawień z pliku (App.config)
-        public PopConnectionSettings(String ConfigPath)
+        public void CloneFrom(PopConnectionSettings In)
         {
-            XmlTextReader Reader = new XmlTextReader(ConfigPath);
-            bool hasHostname = false, hasUsername = false, hasPassword = false, hasPort = false, hasRefrate = false;
-            while (Reader.Read())
+            Hostname           = In.Hostname;
+            Port               = In.Port;
+            UserLogin          = In.UserLogin;
+            UserPassword       = In.UserPassword;
+            RefreshRateSeconds = In.RefreshRateSeconds;
+        }
+
+        //parsowanie ustawień z pliku (App.config)
+        public bool TryReadFromFile(String ConfigPath)
+        {
+            XmlTextReader Reader = null;
+
+            try
             {
-                if(Reader.HasAttributes)
+                Reader = new XmlTextReader(ConfigPath);
+                bool hasHostname = false, hasUsername = false, hasPassword = false, hasPort = false, hasRefrate = false;
+                while (Reader.Read())
                     switch (Reader.Name)
                     {
                         case "hostname":
@@ -60,21 +72,47 @@ namespace MailClient
                         case "refrate":
                             double Refrate = 0;
                             double.TryParse(Reader.GetAttribute(0), out Refrate);
-                            RefreshRateSeconds = Refrate; //jeśli parse nie powiedzie się, Refrate=15
+                            RefreshRateSeconds = Refrate; //jeśli parse nie powiedzie się, Refrate = 15
                             hasRefrate = true;
                             break;
                     }
-            }
 
-            if (hasHostname && hasUsername && hasPassword && hasPort && hasRefrate) return;
-            System.Windows.Forms.MessageBox.Show("Warning", "Not all fields could be serialized from config file");
+                Reader.Close();
+                return hasHostname && hasUsername && hasPassword && hasPort && hasRefrate;
+            }
+            catch { if(Reader != null) Reader.Close(); }
+            return false;
         }
 
         //tworzenie pliku App.config
-        public String SaveConfig(string TargetCfg)
+        public bool SaveConfig(string TargetCfg)
         {
-            XmlTextWriter Writer = new XmlTextWriter(TargetCfg, System.Text.Encoding.ASCII);
-            throw new NotImplementedException();
+            try
+            {
+              XmlTextWriter Writer = new XmlTextWriter(TargetCfg, System.Text.Encoding.ASCII);
+              Writer.WriteStartDocument();
+              Writer.WriteStartElement("appcfg");
+                Writer.WriteStartElement("hostname");
+                  Writer.WriteAttributeString("value", Hostname);
+                Writer.WriteEndElement();
+                Writer.WriteStartElement("port");
+                  Writer.WriteAttributeString("value", Port.ToString());
+                Writer.WriteEndElement();
+                Writer.WriteStartElement("username");
+                  Writer.WriteAttributeString("value", UserLogin);
+                Writer.WriteEndElement();
+                Writer.WriteStartElement("password");
+                  Writer.WriteAttributeString("value", UserPassword);
+                Writer.WriteEndElement();
+                Writer.WriteStartElement("refrate");
+                  Writer.WriteAttributeString("value", RefreshRateSeconds.ToString());
+                Writer.WriteEndElement();
+              Writer.WriteEndElement();
+              Writer.WriteEndDocument();
+              Writer.Close();
+            }
+            catch { return false; }
+            return true;
         }
     }
 }

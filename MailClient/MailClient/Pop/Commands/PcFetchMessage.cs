@@ -47,7 +47,7 @@ namespace MailClient
 
         internal override int VerbsLeft()
         {
-            return CommandSent ? 0 : 1;
+            return CommandSent && ParentService.State == PopState.Update ? 0 : 1;
         }
 
         internal override bool IsMultiline()

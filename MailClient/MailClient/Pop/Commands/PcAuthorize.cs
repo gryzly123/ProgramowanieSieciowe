@@ -24,7 +24,9 @@ namespace MailClient
 
         public PcAuthorize()
         {
-            AuthState = AuthorizationState.NotStarted;
+            AuthState = (ParentService.State <= PopState.Authorization)
+            ? AuthorizationState.NotStarted
+            : AuthorizationState.Failed;
         }
 
         internal override string BuildVerb()

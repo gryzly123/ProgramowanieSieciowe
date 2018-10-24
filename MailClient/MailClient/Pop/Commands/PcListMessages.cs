@@ -56,13 +56,14 @@ namespace MailClient
                 NewMessages[It] = Uid;
             }
 
+            ParentService.State = PopState.Update;
             OnNewMessagesReceived(NewMessages);
             return true;
         }
 
         internal override int VerbsLeft()
         {
-            return CommandSent ? 0 : 1;
+            return CommandSent && ParentService.State == PopState.Transaction ? 0 : 1;
         }
 
         internal override bool IsMultiline()
