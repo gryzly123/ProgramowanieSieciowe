@@ -18,15 +18,13 @@ namespace MailClient
             Failed
         } private AuthorizationState AuthState;
 
-        public EventHandler OnUserLoginSuccess;
-        public EventHandler OnUserLoginFailed;
+        public PopEvent OnUserLoginSuccess;
+        public PopEvent OnUserLoginFailed;
         PopConnectionSettings Creds;
 
         public PcAuthorize()
         {
-            AuthState = (ParentService.State <= PopState.Authorization)
-            ? AuthorizationState.NotStarted
-            : AuthorizationState.Failed;
+            AuthState = AuthorizationState.NotStarted;
         }
 
         internal override string BuildVerb()
@@ -52,6 +50,7 @@ namespace MailClient
             if(!Response.StartsWith(OK))
             {
                 AuthState = AuthorizationState.Failed;
+                OnUserLoginFailed();
             }
 
             switch(AuthState)
@@ -62,6 +61,7 @@ namespace MailClient
 
                 case AuthorizationState.SentPassword:
                     AuthState = AuthorizationState.AcceptedPassword;
+                    OnUserLoginSuccess();
                     ParentService.State = PopState.Transaction;
                     return true;
             }

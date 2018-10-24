@@ -21,7 +21,7 @@ namespace MailClient
         //init ustawień z domyślnymi ustawieniami
         public PopConnectionSettings()
         {
-            Hostname = "localhost";
+            Hostname = "127.0.0.1";
             Port = 110;
             UserLogin = "";
             UserPassword = "";

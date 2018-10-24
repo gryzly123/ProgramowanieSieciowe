@@ -13,6 +13,8 @@ namespace MailClient
         Update
     }
 
+    public delegate void PopEvent();
+
     public class PopService
     {
         private PopConnectionSettings CurrentConfig = new PopConnectionSettings();
@@ -22,8 +24,8 @@ namespace MailClient
         private bool ShutdownRequested = false;
         internal PopState State = PopState.Off;
 
-        public EventHandler OnConnectionOpened;
-        public EventHandler OnConnectionClosed;
+        public PopEvent OnConnectionOpened;
+        public PopEvent OnConnectionClosed;
 
         public DebugMessaging OnLineSentOrReceived;
         public void OnLineSentPassthrough(bool In, string Msg) { OnLineSentOrReceived(In, Msg); }
@@ -36,14 +38,10 @@ namespace MailClient
 
             //może rzucić wyjątkiem, ale obecna metoda też powinna być używana z try-catchem
             Connection.OnLineSentOrReceived += OnLineSentPassthrough;
-            Connection.StartConnection(CurrentConfig);
 
             ServerThread = new BackgroundWorker();
             ServerThread.DoWork += ServerLoop;
             ServerThread.RunWorkerAsync();
-
-            State = PopState.Authorization;
-            OnConnectionOpened(this, new EventArgs());
         }
 
         public void RequestStopService()
@@ -77,7 +75,16 @@ namespace MailClient
 
         private void ServerLoop(object sender, DoWorkEventArgs e)
         {
-            while(!ShutdownRequested)
+            if(!Connection.StartConnection(CurrentConfig))
+            {
+                OnConnectionClosed();
+                return;
+            }
+
+            State = PopState.Authorization;
+            OnConnectionOpened();
+
+            while (!ShutdownRequested)
             {
                 if (CommandQueue.Count > 0)
                 {
@@ -92,7 +99,7 @@ namespace MailClient
             ShutdownRequested = false;
             Connection.CloseConnection();
             Connection = null;
-            OnConnectionClosed(this, new EventArgs());
+            OnConnectionClosed();
         }
     }
 }

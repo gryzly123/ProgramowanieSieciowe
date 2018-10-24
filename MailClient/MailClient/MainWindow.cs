@@ -27,28 +27,26 @@ namespace MailClient
 
         private void ButtonConnectPop_Click(object sender, EventArgs e)
         {
-            PopConnectionSettings Config = new PopConnectionSettings();
-
-            Service = new PopService();
-            Service.PushNewConfig(Config);
-            Service.OnConnectionOpened += OnPopConnectionEstablished;
-            Service.OnLineSentOrReceived += ParseDebugMessage;
-            Inbox.OnMessageReceived += AddMessageToInbox;
-
-            //startuję połączenie, a następnie każę klientowi zalogować się i pobrać wiadomości
-            try
+            if (!IsPopRunning)
             {
-                Service.RequestStartService();
-                Service.PushNewCommand(new PcAuthorize());
 
-                PcListMessages ReceiveCmd = new PcListMessages(Inbox);
-                ReceiveCmd.OnNewMessagesReceived += HandleOnMessageListReceived;
-                Service.PushNewCommand(ReceiveCmd);
-                ButtonConnectPop.Enabled = false;
-            }
-            catch (Exception E)
-            {
-                MessageBox.Show("Could not connect to the server. Reason: " + E.ToString());
+                Service = new PopService();
+                Service.PushNewConfig(PopConfig);
+                Service.OnConnectionOpened += OnPopConnectionEstablished;
+                Service.OnLineSentOrReceived += ParseDebugMessage;
+                Inbox.OnMessageReceived += AddMessageToInbox;
+
+                //startuję połączenie, a następnie każę klientowi zalogować się i pobrać wiadomości
+                try
+                {
+                    ButtonConnectPop.Enabled = false;
+                    Service.RequestStartService();
+                }
+                catch (Exception E)
+                {
+                    ButtonConnectPop.Enabled = true;
+                    MessageBox.Show("Could not connect to the server. Reason: " + E.ToString());
+                }
             }
         }
 
@@ -70,11 +68,32 @@ namespace MailClient
             }));
         }
 
-        private void OnPopConnectionEstablished(object sender, EventArgs e)
+        private void OnPopConnectionEstablished()
         {
             IsPopRunning = true;
-            ButtonConnectPop.Enabled = true;
-            ButtonConnectPop.Text = "Stop connection";
+            ButtonConnectPop.Invoke(new Action(() =>
+            {
+                ButtonConnectPop.Enabled = true;
+                ButtonConnectPop.Text = "Stop connection";
+            }));
+
+            PcAuthorize AuthCmd = new PcAuthorize();
+            AuthCmd.OnUserLoginSuccess += OnPopUserLoggedIn;
+            AuthCmd.OnUserLoginFailed += OnPopUserFailedToAuth;
+            Service.PushNewCommand(AuthCmd);
+        }
+
+        private void OnPopUserFailedToAuth()
+        {
+            MessageBox.Show("Connection succeeded but login failed.\nCheck your credentials.");
+            Service.RequestStopService();
+        }
+
+        private void OnPopUserLoggedIn()
+        {
+            PcListMessages ReceiveCmd = new PcListMessages(Inbox);
+            ReceiveCmd.OnNewMessagesReceived += HandleOnMessageListReceived;
+            Service.PushNewCommand(ReceiveCmd);
         }
 
         private void HandleOnMessageListReceived(Dictionary<int, string> NewMessages)
