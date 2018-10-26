@@ -17,7 +17,7 @@ namespace MailClient
 
         internal override bool ParseResponse(string Response)
         {
-            if(Response.StartsWith(OK))
+            if (Response.StartsWith(OK) || Response == string.Empty)
             {
                 switch (ParentService.State)
                 {
@@ -26,6 +26,7 @@ namespace MailClient
                         break;
 
                     default:
+                        ParentService.State = PopState.Off;
                         ParentService.RequestStopService();
                         break;
                 }

@@ -29,7 +29,7 @@ namespace MailClient
 
         internal override bool ParseResponse(string Response)
         {
-            Response = Response.Remove(Response.Length - MultilineTerminator.Length - 1);
+            Response = Response.Remove(Response.Length - MultilineTerminator.Length);
             string[] Lines = Response.Split(new string[] { EOL }, StringSplitOptions.None);
             int LineCount = Lines.Length;
 
@@ -48,7 +48,7 @@ namespace MailClient
 
         internal override int VerbsLeft()
         {
-            return CommandSent && ParentService.State == PopState.Update ? 0 : 1;
+            return (!CommandSent && ParentService.State == PopState.Transaction) ? 1 : 0;
         }
 
         internal override bool IsMultiline()

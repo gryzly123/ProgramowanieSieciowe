@@ -10,12 +10,15 @@ namespace MailClient
         private const string ConfigFilename = "config.xml";
         private MailDirectory Inbox = new MailDirectory("Inbox");
         private bool IsPopRunning = false;
+        private int NewMessageCounter = 0;
+        private int FetchMessageCounter = 0;
         PopConnectionSettings PopConfig;
 
         public MainWindow()
         {
             InitializeComponent();
             SetupConfig();
+            Inbox.OnMessageReceived += AddMessageToInbox;
         }
         private void SetupConfig()
         {
@@ -30,12 +33,16 @@ namespace MailClient
             if (TimerPopRefresh.Enabled)
             {
                 if (IsPopRunning) StopConnection();
+                ButtonConnectPop.Text = "Start client";
                 TimerPopRefresh.Stop();
                 ButtonConfig.Enabled = true;
+                ListboxLog.Items.Add("Inbox refresh disabled. Messages received since service started: " + NewMessageCounter.ToString());
+                ListboxLog.SelectedIndex = ListboxLog.Items.Count - 1;
             }
             else
             {
                 ButtonConfig.Enabled = false;
+                NewMessageCounter = 0;
                 StartConnection();
                 TimerPopRefresh.Interval = (int)(Service.GetConfig().RefreshRateSeconds * 1000);
                 TimerPopRefresh.Start();
@@ -71,8 +78,8 @@ namespace MailClient
                 Service.OnConnectionOpened += OnPopConnectionEstablished;
                 Service.OnConnectionClosed += OnPopConnectionClosed;
                 Service.OnLineSentOrReceived += ParseDebugMessage;
-                Inbox.OnMessageReceived += AddMessageToInbox;
                 ButtonConnectPop.Enabled = false;
+                FetchMessageCounter = 0;
                 try { Service.RequestStartService(); }
                 catch (Exception E)
                 {
@@ -101,6 +108,8 @@ namespace MailClient
             {
                 ButtonConnectPop.Enabled = true;
                 ButtonConnectPop.Text = "Stop client";
+                ListboxLog.Items.Add("-- connection started --");
+                ListboxLog.SelectedIndex = ListboxLog.Items.Count - 1;
             }));
 
             PcAuthorize AuthCmd = new PcAuthorize();
@@ -120,6 +129,18 @@ namespace MailClient
                     ButtonConfig.Enabled = true;
                 }
 
+                ButtonConnectPop.Text = CleanShutdown
+                ? "Waiting..."
+                : "Start client";
+
+
+                ListboxLog.Items.Add(CleanShutdown
+                    ? "-- connection ended --"
+                    : "-- connection failed --");
+                ListboxLog.Items.Add("Messages received in this ping: " + FetchMessageCounter.ToString());
+                ListboxLog.SelectedIndex = ListboxLog.Items.Count - 1;
+                if (FetchMessageCounter > 0)
+                    MessageBox.Show("You have " + FetchMessageCounter.ToString() + " new messages!");
             }));
         }
         private void ParseDebugMessage(bool IsIncoming, string Message)
@@ -160,6 +181,8 @@ namespace MailClient
             foreach (KeyValuePair<int, string> Message in NewMessages)
             {
                 Service.PushNewCommand(new PcFetchMessage(Inbox, Message.Key, Message.Value));
+                ++FetchMessageCounter;
+                ++NewMessageCounter;
             }
             Service.PushNewCommand(new PcQuit());
         }
