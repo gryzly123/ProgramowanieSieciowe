@@ -31,23 +31,33 @@ namespace MailClient
         private void ButtonConnectPop_Click(object sender, EventArgs e)
         {
             if (TimerPopRefresh.Enabled)
+                DisableService();
+            else
+                EnableService();
+        }
+
+        private void EnableService()
+        {
+            ButtonConfig.Enabled = false;
+            NewMessageCounter = 0;
+            StartConnection();
+            TimerPopRefresh.Interval = (int)(Service.GetConfig().RefreshRateSeconds * 1000);
+            TimerPopRefresh.Start();
+        }
+
+        private void DisableService()
+        {
+            Invoke(new Action(() =>
             {
-                if (IsPopRunning) StopConnection();
+                if (IsPopRunning) Service.RequestStopService();
                 ButtonConnectPop.Text = "Start client";
                 TimerPopRefresh.Stop();
                 ButtonConfig.Enabled = true;
                 ListboxLog.Items.Add("Inbox refresh disabled. Messages received since service started: " + NewMessageCounter.ToString());
                 ListboxLog.SelectedIndex = ListboxLog.Items.Count - 1;
-            }
-            else
-            {
-                ButtonConfig.Enabled = false;
-                NewMessageCounter = 0;
-                StartConnection();
-                TimerPopRefresh.Interval = (int)(Service.GetConfig().RefreshRateSeconds * 1000);
-                TimerPopRefresh.Start();
-            }
+            }));
         }
+
         private void ButtonConfig_Click(object sender, EventArgs e)
         {
             new Configuration(PopConfig).ShowDialog();
@@ -88,15 +98,6 @@ namespace MailClient
                 }
             }
             else throw new Exception("connection_exists");
-        }
-        private void StopConnection()
-        {
-            if (IsPopRunning && Service != null)
-            {
-                ButtonConnectPop.Enabled = false;
-                Service.RequestStopService();
-            }
-            else throw new Exception("no_working_connections");
         }
         #endregion
 
@@ -163,7 +164,7 @@ namespace MailClient
         private void OnPopUserFailedToAuth()
         {
             MessageBox.Show("Connection succeeded but login failed.\nCheck your credentials.");
-            Service.RequestStopService();
+            DisableService();
         }
         #endregion
         

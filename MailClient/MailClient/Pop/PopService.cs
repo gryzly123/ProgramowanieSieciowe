@@ -108,10 +108,9 @@ namespace MailClient
             }
 
             ShutdownRequested = false;
-            State = PopState.Off;
             Connection.CloseConnection();
             Connection = null;
-            OnConnectionClosed(true);
+            OnConnectionClosed(State == PopState.Off);
         }
     }
 }

@@ -18,6 +18,8 @@ namespace MailClient
             set { if (value > 1.0) ActualRefreshRateSeconds = value; else ActualRefreshRateSeconds = 15.0; }
         }
 
+        public bool UseSsl = true;
+
         //init ustawień z domyślnymi ustawieniami
         public PopConnectionSettings()
         {

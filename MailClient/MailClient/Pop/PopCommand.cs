@@ -9,7 +9,7 @@ namespace MailClient
     public abstract class PopCommand
     {
         protected const string EOL = "\r\n";
-        protected const string OK = "+OK ";
+        protected const string OK = "+OK";
         protected const string ERROR = "-ERR";
         internal  const string MultilineTerminator = "\r\n.\r\n";
         internal  const string Whitespace = " ";

@@ -34,12 +34,13 @@ namespace MailClient
             int LineCount = Lines.Length;
 
             if (!Lines[0].StartsWith(OK)) return false;
-
             for(int i = 1; i < LineCount; ++i)
             {
                 string[] Verbs = Lines[i].Split(new string[] { Whitespace }, StringSplitOptions.None);
-
-                int It = int.Parse(Verbs[0]);
+                int It = 0;
+                
+                //Poczta WP odsyła dwie okejki, więc spradzam czy pominąć linijkę
+                if (!int.TryParse(Verbs[0], out It)) continue;
                 string Uid = Verbs[1];
 
                 //szukam wiadomości w folderze, pomijam dodanie jej
@@ -62,12 +63,12 @@ namespace MailClient
 
         internal override int VerbsLeft()
         {
-            return (!CommandSent && ParentService.State >= PopState.Transaction) ? 1 : 0;
+            return (!CommandSent && ParentService.State == PopState.Transaction) ? 1 : 0;
         }
 
         internal override bool IsMultiline()
         {
-            return false;
+            return true;
         }
     }
 }

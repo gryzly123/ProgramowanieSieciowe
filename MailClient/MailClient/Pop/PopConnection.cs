@@ -5,6 +5,7 @@ using System.Windows.Forms;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.Net.Security;
 
 namespace MailClient
 {
@@ -12,9 +13,9 @@ namespace MailClient
 
     public class PopConnection
     {
-        private Socket PopSocket;
+        private TcpClient PopSocket;
+        private System.IO.Stream PopStream;
         private bool ConnectionOpened = false;
-        private bool ConnectionActive = false;
         public DebugMessaging OnLineSentOrReceived;// = new DebugMessaging();
 
         public bool IsConnected()
@@ -30,28 +31,17 @@ namespace MailClient
                 throw new Exception("already_connected");
             }
 
-            //pobieramy adres IP
-            IPAddress Ip;
-            try { Ip = IPAddress.Parse(WithConfig.Hostname); }
-            catch(Exception E)
-            {
-                //jeśli hostname nie jest adresem IP, musimy go rozwiązać
-                IPAddress[] ResolvedHostname = Dns.GetHostAddresses(WithConfig.Hostname);
-                if(ResolvedHostname.Length == 0)
-                {
-                    throw new Exception("couldnt_resolve_hostname");
-                }
-                Ip = ResolvedHostname[0];
-            }
-
-            //tworzymy endpointa i socketa
-            IPEndPoint EndPoint = new IPEndPoint(Ip, WithConfig.Port);
-
             try
             {
-                PopSocket = new Socket(Ip.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
-                PopSocket.Connect(EndPoint);
-                
+                PopSocket = new TcpClient(WithConfig.Hostname, WithConfig.Port);
+                //PopSocket.Connect(EndPoint);
+                if(WithConfig.UseSsl)
+                {
+                    SslStream Ssl = new SslStream(PopSocket.GetStream());
+                    Ssl.AuthenticateAsClient(WithConfig.Hostname);
+                    PopStream = Ssl;
+                }
+                else PopStream = PopStream = PopSocket.GetStream();
             }
             catch (Exception e)
             {
@@ -66,7 +56,7 @@ namespace MailClient
             if (!IsConnected()) return true;
             try
             {
-                PopSocket.Shutdown(SocketShutdown.Both);
+                PopStream.Close();
                 PopSocket.Close();
             }
             catch (Exception e)
@@ -75,7 +65,6 @@ namespace MailClient
             }
 
             ConnectionOpened = false;
-            ConnectionActive = false;
             PopSocket = null;
             return true;
         }
@@ -86,14 +75,17 @@ namespace MailClient
             while (Command.VerbsLeft() > 0 && !ErrorEncountered)
             {
                 string Msg = Command.BuildVerb();
-                PopSocket.Send(Encoding.ASCII.GetBytes(Msg));
+                {
+                    byte[] CommandBytes = Encoding.ASCII.GetBytes(Msg);
+                    PopStream.Write(CommandBytes, 0, CommandBytes.Length);
+                }
                 OnLineSentOrReceived(false, Msg);
                 string RMsg = string.Empty;
                 if(Command.ExpectsResponse())
                 do
                 {
                     byte[] Response = new byte[PopSocket.ReceiveBufferSize];
-                    int ResponseLen = PopSocket.Receive(Response);
+                    int ResponseLen = PopStream.Read(Response, 0, PopSocket.ReceiveBufferSize);
                     RMsg += Encoding.ASCII.GetString(Response, 0, ResponseLen);
                 }
                 while (Command.IsMultiline() && !RMsg.EndsWith(PopCommand.MultilineTerminator));
