@@ -18,7 +18,7 @@ namespace MailClient
             set { if (value > 1.0) ActualRefreshRateSeconds = value; else ActualRefreshRateSeconds = 15.0; }
         }
 
-        public bool UseSsl = true;
+        public bool UseSsl;
 
         //init ustawień z domyślnymi ustawieniami
         public PopConnectionSettings()
@@ -28,6 +28,7 @@ namespace MailClient
             UserLogin = "";
             UserPassword = "";
             RefreshRateSeconds = 5.0;
+            UseSsl = true;
         }
 
         public void CloneFrom(PopConnectionSettings In)
@@ -37,6 +38,7 @@ namespace MailClient
             UserLogin          = In.UserLogin;
             UserPassword       = In.UserPassword;
             RefreshRateSeconds = In.RefreshRateSeconds;
+            UseSsl             = In.UseSsl;
         }
 
         //parsowanie ustawień z pliku (App.config)
@@ -47,7 +49,7 @@ namespace MailClient
             try
             {
                 Reader = new XmlTextReader(ConfigPath);
-                bool hasHostname = false, hasUsername = false, hasPassword = false, hasPort = false, hasRefrate = false;
+                bool hasHostname = false, hasUsername = false, hasPassword = false, hasPort = false, hasRefrate = false, hasSsl = false;
                 while (Reader.Read())
                     switch (Reader.Name)
                     {
@@ -77,10 +79,17 @@ namespace MailClient
                             RefreshRateSeconds = Refrate; //jeśli parse nie powiedzie się, Refrate = 15
                             hasRefrate = true;
                             break;
+
+                        case "ssl":
+                            bool Ssl = false, Parse = false;
+                            Parse = bool.TryParse(Reader.GetAttribute(0), out Ssl);
+                            UseSsl = Ssl || !Parse; //jeśli parse nie powiedzie się, ustawiam true
+                            hasSsl = true;
+                            break;
                     }
 
                 Reader.Close();
-                return hasHostname && hasUsername && hasPassword && hasPort && hasRefrate;
+                return hasHostname && hasUsername && hasPassword && hasPort && hasRefrate && hasSsl;
             }
             catch { if(Reader != null) Reader.Close(); }
             return false;
@@ -109,7 +118,10 @@ namespace MailClient
                 Writer.WriteStartElement("refrate");
                   Writer.WriteAttributeString("value", RefreshRateSeconds.ToString());
                 Writer.WriteEndElement();
-              Writer.WriteEndElement();
+                Writer.WriteStartElement("ssl");
+                  Writer.WriteAttributeString("value", UseSsl.ToString());
+                Writer.WriteEndElement();
+                Writer.WriteEndElement();
               Writer.WriteEndDocument();
               Writer.Close();
             }

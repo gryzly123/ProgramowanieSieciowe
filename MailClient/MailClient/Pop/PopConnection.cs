@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Windows.Forms;
-using System.Net;
-using System.Net.Sockets;
 using System.Text;
+using System.Net.Sockets;
 using System.Net.Security;
 
 namespace MailClient
@@ -16,7 +12,7 @@ namespace MailClient
         private TcpClient PopSocket;
         private System.IO.Stream PopStream;
         private bool ConnectionOpened = false;
-        public DebugMessaging OnLineSentOrReceived;// = new DebugMessaging();
+        public DebugMessaging OnLineSentOrReceived;
 
         public bool IsConnected()
         {
@@ -34,7 +30,6 @@ namespace MailClient
             try
             {
                 PopSocket = new TcpClient(WithConfig.Hostname, WithConfig.Port);
-                //PopSocket.Connect(EndPoint);
                 if(WithConfig.UseSsl)
                 {
                     SslStream Ssl = new SslStream(PopSocket.GetStream());
@@ -59,9 +54,9 @@ namespace MailClient
                 PopStream.Close();
                 PopSocket.Close();
             }
-            catch (Exception e)
+            catch
             {
-                MessageBox.Show("Connection was not closed gracefully.");
+                System.Windows.Forms.MessageBox.Show("Connection was not closed gracefully.");
             }
 
             ConnectionOpened = false;

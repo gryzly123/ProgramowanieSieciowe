@@ -1,11 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace MailClient
@@ -22,11 +15,12 @@ namespace MailClient
             TempSettings = new PopConnectionSettings();
             TempSettings.CloneFrom(InSettings);
 
-            InHostname.Text = TempSettings.Hostname;
-            InPort    .Text = TempSettings.Port.ToString();
-            InUsername.Text = TempSettings.UserLogin;
-            InPassword.Text = TempSettings.UserPassword;
-            InRefrate .Text = TempSettings.RefreshRateSeconds.ToString();
+            InHostname.Text  = TempSettings.Hostname;
+            InPort    .Text  = TempSettings.Port.ToString();
+            InUsername.Text  = TempSettings.UserLogin;
+            InPassword.Text  = TempSettings.UserPassword;
+            InRefrate .Text  = TempSettings.RefreshRateSeconds.ToString();
+            CheckSsl.Checked = TempSettings.UseSsl;
         }
 
         private void InHostname_TextChanged(object sender, EventArgs e)
@@ -56,6 +50,11 @@ namespace MailClient
             double.TryParse(InRefrate.Text, out NewRefrate);
             TempSettings.RefreshRateSeconds = NewRefrate;
             InRefrate.Text = TempSettings.RefreshRateSeconds.ToString();
+        }
+
+        private void CheckSsl_CheckedChanged(object sender, EventArgs e)
+        {
+            TempSettings.UseSsl = CheckSsl.Checked;
         }
 
         private void ButtonAccept_Click(object sender, EventArgs e)

@@ -40,6 +40,8 @@
             this.label3 = new System.Windows.Forms.Label();
             this.InPort = new System.Windows.Forms.TextBox();
             this.label2 = new System.Windows.Forms.Label();
+            this.label6 = new System.Windows.Forms.Label();
+            this.CheckSsl = new System.Windows.Forms.CheckBox();
             this.groupBox1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -54,7 +56,7 @@
             // 
             // ButtonAccept
             // 
-            this.ButtonAccept.Location = new System.Drawing.Point(148, 183);
+            this.ButtonAccept.Location = new System.Drawing.Point(148, 208);
             this.ButtonAccept.Name = "ButtonAccept";
             this.ButtonAccept.Size = new System.Drawing.Size(75, 23);
             this.ButtonAccept.TabIndex = 1;
@@ -72,6 +74,8 @@
             // 
             // groupBox1
             // 
+            this.groupBox1.Controls.Add(this.CheckSsl);
+            this.groupBox1.Controls.Add(this.label6);
             this.groupBox1.Controls.Add(this.InRefrate);
             this.groupBox1.Controls.Add(this.label5);
             this.groupBox1.Controls.Add(this.InPassword);
@@ -84,7 +88,7 @@
             this.groupBox1.Controls.Add(this.label1);
             this.groupBox1.Location = new System.Drawing.Point(12, 12);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(211, 165);
+            this.groupBox1.Size = new System.Drawing.Size(211, 190);
             this.groupBox1.TabIndex = 3;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "POP3";
@@ -157,12 +161,31 @@
             this.label2.TabIndex = 3;
             this.label2.Text = "Port";
             // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Location = new System.Drawing.Point(6, 156);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(49, 13);
+            this.label6.TabIndex = 11;
+            this.label6.Text = "Use SSL";
+            // 
+            // CheckSsl
+            // 
+            this.CheckSsl.AutoSize = true;
+            this.CheckSsl.Location = new System.Drawing.Point(94, 155);
+            this.CheckSsl.Name = "CheckSsl";
+            this.CheckSsl.Size = new System.Drawing.Size(15, 14);
+            this.CheckSsl.TabIndex = 12;
+            this.CheckSsl.UseVisualStyleBackColor = true;
+            this.CheckSsl.CheckedChanged += new System.EventHandler(this.CheckSsl_CheckedChanged);
+            // 
             // Configuration
             // 
             this.AcceptButton = this.ButtonAccept;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(234, 215);
+            this.ClientSize = new System.Drawing.Size(234, 241);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.ButtonAccept);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
@@ -188,5 +211,7 @@
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.TextBox InPort;
         private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.CheckBox CheckSsl;
+        private System.Windows.Forms.Label label6;
     }
 }

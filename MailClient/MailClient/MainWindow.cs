@@ -7,7 +7,7 @@ namespace MailClient
     public partial class MainWindow : Form
     {
         private PopService Service;
-        private const string ConfigFilename = "config.xml";
+        private const string ConfigFilename = "MailClientConfig.xml";
         private MailDirectory Inbox = new MailDirectory("Inbox");
         private bool IsPopRunning = false;
         private int NewMessageCounter = 0;
@@ -40,9 +40,11 @@ namespace MailClient
         {
             ButtonConfig.Enabled = false;
             NewMessageCounter = 0;
-            StartConnection();
-            TimerPopRefresh.Interval = (int)(Service.GetConfig().RefreshRateSeconds * 1000);
-            TimerPopRefresh.Start();
+            if (StartConnection())
+            {
+                TimerPopRefresh.Interval = (int)(Service.GetConfig().RefreshRateSeconds * 1000);
+                TimerPopRefresh.Start();
+            }
         }
 
         private void DisableService()
@@ -79,7 +81,7 @@ namespace MailClient
         #endregion
 
         #region POP3 connection
-        private void StartConnection()
+        private bool StartConnection()
         {
             if (!IsPopRunning)
             {
@@ -90,14 +92,16 @@ namespace MailClient
                 Service.OnLineSentOrReceived += ParseDebugMessage;
                 ButtonConnectPop.Enabled = false;
                 FetchMessageCounter = 0;
-                try { Service.RequestStartService(); }
+                try { Service.RequestStartService(); return true; }
                 catch (Exception E)
                 {
+                    ButtonConnectPop.Enabled = true;
                     ButtonConnectPop.Enabled = true;
                     MessageBox.Show("Could not connect to the server. Reason: " + E.ToString());
                 }
             }
             else throw new Exception("connection_exists");
+            return false;
         }
         #endregion
 
@@ -133,7 +137,6 @@ namespace MailClient
                 ButtonConnectPop.Text = CleanShutdown
                 ? "Waiting..."
                 : "Start client";
-
 
                 ListboxLog.Items.Add(CleanShutdown
                     ? "-- connection ended --"
