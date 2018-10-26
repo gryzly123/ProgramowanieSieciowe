@@ -41,6 +41,7 @@ namespace MailClient
             if (CurrentMsg.PopReceived) return true;
 
             for (int i = 1; i < LineCount; ++i) CurrentMsg.Message += Lines[i] + EOL;
+            CurrentMsg.PopReceived = true;
             CurrentMsg.OnMessageUpdated(CurrentMsg, new EventArgs());
             return true;
         }

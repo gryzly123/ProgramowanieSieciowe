@@ -167,7 +167,7 @@
             this.Controls.Add(this.ButtonAccept);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.Name = "Configuration";
-            this.Text = "AppConfig";
+            this.Text = "Setup";
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
             this.ResumeLayout(false);

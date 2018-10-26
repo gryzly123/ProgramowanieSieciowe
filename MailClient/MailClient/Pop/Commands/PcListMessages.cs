@@ -50,20 +50,19 @@ namespace MailClient
                     Msg = new MailMessage();
                     CurrentDir.AddMessage(Uid, Msg);
                 }
-                else if (Msg.PopReceived) continue;
                 
                 Msg.PopUid = Uid;
-                NewMessages[It] = Uid;
+                if (!Msg.PopReceived) NewMessages[It] = Uid;
             }
 
-            ParentService.State = PopState.Update;
+            //ParentService.State = PopState.Update;
             OnNewMessagesReceived(NewMessages);
             return true;
         }
 
         internal override int VerbsLeft()
         {
-            return (!CommandSent && ParentService.State == PopState.Transaction) ? 1 : 0;
+            return (!CommandSent && ParentService.State >= PopState.Transaction) ? 1 : 0;
         }
 
         internal override bool IsMultiline()

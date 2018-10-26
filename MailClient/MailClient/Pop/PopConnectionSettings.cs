@@ -25,7 +25,7 @@ namespace MailClient
             Port = 110;
             UserLogin = "";
             UserPassword = "";
-            RefreshRateSeconds = 15.0;
+            RefreshRateSeconds = 5.0;
         }
 
         public void CloneFrom(PopConnectionSettings In)

@@ -61,6 +61,7 @@
     </Compile>
     <Compile Include="Pop\Commands\PcAuthorize.cs" />
     <Compile Include="Pop\Commands\PcFetchMessage.cs" />
+    <Compile Include="Pop\Commands\PcQuit.cs" />
     <Compile Include="Pop\Commands\PcListMessages.cs" />
     <Compile Include="Pop\PopCommand.cs" />
     <Compile Include="Pop\PopConnection.cs" />

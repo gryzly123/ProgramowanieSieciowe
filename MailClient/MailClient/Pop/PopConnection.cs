@@ -88,19 +88,18 @@ namespace MailClient
                 string Msg = Command.BuildVerb();
                 PopSocket.Send(Encoding.ASCII.GetBytes(Msg));
                 OnLineSentOrReceived(false, Msg);
-
-                Msg = string.Empty;
-
+                string RMsg = string.Empty;
+                if(Command.ExpectsResponse())
                 do
                 {
                     byte[] Response = new byte[PopSocket.ReceiveBufferSize];
                     int ResponseLen = PopSocket.Receive(Response);
-                    Msg += Encoding.ASCII.GetString(Response, 0, ResponseLen);
+                    RMsg += Encoding.ASCII.GetString(Response, 0, ResponseLen);
                 }
-                while (Command.IsMultiline() && !Msg.EndsWith(PopCommand.MultilineTerminator));
+                while (Command.IsMultiline() && !RMsg.EndsWith(PopCommand.MultilineTerminator));
 
-                ErrorEncountered = !Command.ParseResponse(Msg);
-                OnLineSentOrReceived(true, Msg);
+                ErrorEncountered = !Command.ParseResponse(RMsg);
+                OnLineSentOrReceived(true, RMsg);
             }
 
             return !ErrorEncountered;

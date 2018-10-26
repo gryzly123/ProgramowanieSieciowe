@@ -28,14 +28,15 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.ButtonConnectPop = new System.Windows.Forms.Button();
             this.ListboxLog = new System.Windows.Forms.ListBox();
             this.ListboxMessages = new System.Windows.Forms.ListBox();
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
-            this.ButtonShowLog = new System.Windows.Forms.Button();
             this.ButtonConfig = new System.Windows.Forms.Button();
             this.ButtonSendMessage = new System.Windows.Forms.Button();
+            this.TimerPopRefresh = new System.Windows.Forms.Timer(this.components);
             this.SuspendLayout();
             // 
             // ButtonConnectPop
@@ -44,16 +45,16 @@
             this.ButtonConnectPop.Name = "ButtonConnectPop";
             this.ButtonConnectPop.Size = new System.Drawing.Size(114, 33);
             this.ButtonConnectPop.TabIndex = 0;
-            this.ButtonConnectPop.Text = "Start connection";
+            this.ButtonConnectPop.Text = "Start client";
             this.ButtonConnectPop.UseVisualStyleBackColor = true;
             this.ButtonConnectPop.Click += new System.EventHandler(this.ButtonConnectPop_Click);
             // 
             // ListboxLog
             // 
             this.ListboxLog.FormattingEnabled = true;
-            this.ListboxLog.Location = new System.Drawing.Point(12, 226);
+            this.ListboxLog.Location = new System.Drawing.Point(12, 304);
             this.ListboxLog.Name = "ListboxLog";
-            this.ListboxLog.Size = new System.Drawing.Size(474, 212);
+            this.ListboxLog.Size = new System.Drawing.Size(354, 134);
             this.ListboxLog.TabIndex = 2;
             // 
             // ListboxMessages
@@ -61,7 +62,7 @@
             this.ListboxMessages.FormattingEnabled = true;
             this.ListboxMessages.Location = new System.Drawing.Point(12, 69);
             this.ListboxMessages.Name = "ListboxMessages";
-            this.ListboxMessages.Size = new System.Drawing.Size(474, 134);
+            this.ListboxMessages.Size = new System.Drawing.Size(354, 212);
             this.ListboxMessages.TabIndex = 3;
             this.ListboxMessages.SelectedIndexChanged += new System.EventHandler(this.ListboxMessages_SelectedMessage);
             // 
@@ -77,20 +78,11 @@
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(12, 210);
+            this.label2.Location = new System.Drawing.Point(12, 288);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(58, 13);
             this.label2.TabIndex = 5;
             this.label2.Text = "Server log:";
-            // 
-            // ButtonShowLog
-            // 
-            this.ButtonShowLog.Location = new System.Drawing.Point(372, 16);
-            this.ButtonShowLog.Name = "ButtonShowLog";
-            this.ButtonShowLog.Size = new System.Drawing.Size(114, 33);
-            this.ButtonShowLog.TabIndex = 6;
-            this.ButtonShowLog.Text = "Show server log";
-            this.ButtonShowLog.UseVisualStyleBackColor = true;
             // 
             // ButtonConfig
             // 
@@ -109,22 +101,27 @@
             this.ButtonSendMessage.Name = "ButtonSendMessage";
             this.ButtonSendMessage.Size = new System.Drawing.Size(114, 33);
             this.ButtonSendMessage.TabIndex = 8;
-            this.ButtonSendMessage.Text = "Send message";
+            this.ButtonSendMessage.Text = "New e-mail (SMTP)";
             this.ButtonSendMessage.UseVisualStyleBackColor = true;
+            // 
+            // TimerPopRefresh
+            // 
+            this.TimerPopRefresh.Interval = 15000;
+            this.TimerPopRefresh.Tick += new System.EventHandler(this.TimerPopRefresh_Tick);
             // 
             // MainWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(496, 452);
+            this.ClientSize = new System.Drawing.Size(379, 452);
             this.Controls.Add(this.ButtonSendMessage);
             this.Controls.Add(this.ButtonConfig);
-            this.Controls.Add(this.ButtonShowLog);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.ListboxMessages);
             this.Controls.Add(this.ListboxLog);
             this.Controls.Add(this.ButtonConnectPop);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Name = "MainWindow";
             this.Text = "MailClient (Krzysztof Niedźwiecki)";
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.MainWindow_FormClosed);
@@ -140,9 +137,9 @@
         private System.Windows.Forms.ListBox ListboxMessages;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.Button ButtonShowLog;
         private System.Windows.Forms.Button ButtonConfig;
         private System.Windows.Forms.Button ButtonSendMessage;
+        private System.Windows.Forms.Timer TimerPopRefresh;
     }
 }
 

@@ -14,6 +14,7 @@ namespace MailClient
     }
 
     public delegate void PopEvent();
+    public delegate void PopEventRetVal(bool Success);
 
     public class PopService
     {
@@ -25,7 +26,7 @@ namespace MailClient
         internal PopState State = PopState.Off;
 
         public PopEvent OnConnectionOpened;
-        public PopEvent OnConnectionClosed;
+        public PopEventRetVal OnConnectionClosed;
 
         public DebugMessaging OnLineSentOrReceived;
         public void OnLineSentPassthrough(bool In, string Msg) { OnLineSentOrReceived(In, Msg); }
@@ -40,8 +41,18 @@ namespace MailClient
             Connection.OnLineSentOrReceived += OnLineSentPassthrough;
 
             ServerThread = new BackgroundWorker();
+            ServerThread.RunWorkerCompleted += ServerThread_RunWorkerCompleted;
             ServerThread.DoWork += ServerLoop;
             ServerThread.RunWorkerAsync();
+        }
+
+        private void ServerThread_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        {
+            if(e.Error != null)
+            {
+                System.Windows.Forms.MessageBox.Show("Connection thread failed. Exception: " + e.Error.ToString());
+                OnConnectionClosed(false);
+            }
         }
 
         public void RequestStopService()
@@ -77,7 +88,7 @@ namespace MailClient
         {
             if(!Connection.StartConnection(CurrentConfig))
             {
-                OnConnectionClosed();
+                OnConnectionClosed(false);
                 return;
             }
 
@@ -91,15 +102,16 @@ namespace MailClient
                     bool Deq = CommandQueue.TryDequeue(out PopCommand Cmd);
                     if(!Connection.ExecuteCommand(Cmd))
                         OnLineSentOrReceived(false, "PopCommand error for " + Cmd.ToString());
-                    System.Threading.Thread.Sleep(10);
+                    System.Threading.Thread.Sleep(100);
                 }
                 else System.Threading.Thread.Sleep(100);
             }
 
             ShutdownRequested = false;
+            State = PopState.Off;
             Connection.CloseConnection();
             Connection = null;
-            OnConnectionClosed();
+            OnConnectionClosed(true);
         }
     }
 }

@@ -21,5 +21,6 @@ namespace MailClient
         internal abstract bool ParseResponse(string Response);
         internal abstract int VerbsLeft();
         internal abstract bool IsMultiline();
+        internal virtual bool ExpectsResponse() { return true; }
     }
 }
