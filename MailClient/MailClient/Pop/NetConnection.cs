@@ -7,7 +7,7 @@ namespace MailClient
 {
     public delegate void DebugMessaging(bool IsIncoming, string Message);
 
-    public class PopConnection
+    public class NetConnection
     {
         private TcpClient PopSocket;
         private System.IO.Stream PopStream;
@@ -19,7 +19,7 @@ namespace MailClient
             return PopSocket == null && ConnectionOpened;
         }
 
-        public bool StartConnection(PopConnectionSettings WithConfig)
+        public bool StartConnection(NetConnectionSettings WithConfig)
         {
             //jeśli jesteśmy już połączeni, nie łączymy się jeszcze raz
             if (ConnectionOpened)
@@ -64,17 +64,21 @@ namespace MailClient
             return true;
         }
 
-        public bool ExecuteCommand(PopCommand Command)
+        public bool ExecuteCommand(NetCommand Command)
         {
             bool ErrorEncountered = false;
             while (Command.VerbsLeft() > 0 && !ErrorEncountered)
             {
-                string Msg = Command.BuildVerb();
+                if (!Command.OmmitVerb())
                 {
-                    byte[] CommandBytes = Encoding.ASCII.GetBytes(Msg);
-                    PopStream.Write(CommandBytes, 0, CommandBytes.Length);
+                    string Msg = Command.BuildVerb();
+                    {
+                        byte[] CommandBytes = Encoding.ASCII.GetBytes(Msg);
+                        PopStream.Write(CommandBytes, 0, CommandBytes.Length);
+                    }
+                    OnLineSentOrReceived(false, Msg);
                 }
-                OnLineSentOrReceived(false, Msg);
+
                 string RMsg = string.Empty;
                 if(Command.ExpectsResponse())
                 do

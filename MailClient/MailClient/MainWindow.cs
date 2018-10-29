@@ -8,11 +8,13 @@ namespace MailClient
     {
         private PopService Service;
         private const string ConfigFilename = "MailClientConfig.xml";
+        private const string ConfigFilenameSmtp = "SmtpConfig.xml";
         private MailDirectory Inbox = new MailDirectory("Inbox");
         private bool IsPopRunning = false;
         private int NewMessageCounter = 0;
         private int FetchMessageCounter = 0;
         PopConnectionSettings PopConfig;
+        SmtpConnectionSettings SmtpConfig;
 
         public MainWindow()
         {
@@ -24,7 +26,11 @@ namespace MailClient
         {
             PopConfig = new PopConnectionSettings();
             if (!PopConfig.TryReadFromFile(ConfigFilename))
-                MessageBox.Show("Config file could not be parsed (either missing or corrupted).\nPlease fill your information in the config menu.");
+                MessageBox.Show("POP3 config file could not be parsed (either missing or corrupted).\nPlease fill your information in the config menu.");
+
+            SmtpConfig = new SmtpConnectionSettings();
+            if (!SmtpConfig.TryReadFromFile(ConfigFilenameSmtp))
+                MessageBox.Show("SMTP config file could not be parsed (either missing or corrupted).\nPlease fill your information in the config menu.");
         }
 
         #region Form events
@@ -62,7 +68,7 @@ namespace MailClient
 
         private void ButtonConfig_Click(object sender, EventArgs e)
         {
-            new Configuration(PopConfig).ShowDialog();
+            new Configuration(PopConfig, SmtpConfig).ShowDialog();
             PopConfig.SaveConfig(ConfigFilename);
         }
         private void MainWindow_FormClosed(object sender, FormClosedEventArgs e)
@@ -77,6 +83,13 @@ namespace MailClient
             //pomijam tego ticka jeśli połączenie nie zakończyło się
             if (IsPopRunning) return;
             StartConnection();
+        }
+
+        private void ButtonSendMessage_Click(object sender, EventArgs e)
+        {
+            SmtpWindow Form = new SmtpWindow();
+            Form.SetupConfig(SmtpConfig);
+            Form.Show();
         }
         #endregion
 

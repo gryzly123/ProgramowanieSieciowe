@@ -14,8 +14,8 @@ namespace MailClient
             Failed
         } private AuthorizationState AuthState;
 
-        public PopEvent OnUserLoginSuccess;
-        public PopEvent OnUserLoginFailed;
+        public NetEvent OnUserLoginSuccess;
+        public NetEvent OnUserLoginFailed;
         PopConnectionSettings Creds;
 
         public PcAuthorize()
