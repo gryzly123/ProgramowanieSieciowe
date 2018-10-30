@@ -47,7 +47,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Backend\Inbox\MailMessage.cs" />
-    <Compile Include="Backend\Smtp\Commands\ScInitialRead.cs" />
+    <Compile Include="Backend\Smtp\Commands\ScAuthorize.cs" />
+    <Compile Include="Backend\Smtp\Commands\ScHello.cs" />
     <Compile Include="SmtpWindow.cs">
       <SubType>Form</SubType>
     </Compile>

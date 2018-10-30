@@ -97,5 +97,10 @@ namespace MailClient
             Connection = null;
             OnConnectionClosed(true);
         }
+
+        internal void RequestStopService()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

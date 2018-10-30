@@ -9,14 +9,14 @@ namespace MailClient
 
     public class NetConnection
     {
-        private TcpClient PopSocket;
-        private System.IO.Stream PopStream;
+        private TcpClient NetSocket;
+        private System.IO.Stream NetStream;
         private bool ConnectionOpened = false;
         public DebugMessaging OnLineSentOrReceived;
 
         public bool IsConnected()
         {
-            return PopSocket == null && ConnectionOpened;
+            return NetSocket == null && ConnectionOpened;
         }
 
         public bool StartConnection(NetConnectionSettings WithConfig)
@@ -29,14 +29,14 @@ namespace MailClient
 
             try
             {
-                PopSocket = new TcpClient(WithConfig.Hostname, WithConfig.Port);
+                NetSocket = new TcpClient(WithConfig.Hostname, WithConfig.Port);
                 if(WithConfig.UseSsl)
                 {
-                    SslStream Ssl = new SslStream(PopSocket.GetStream());
+                    SslStream Ssl = new SslStream(NetSocket.GetStream());
                     Ssl.AuthenticateAsClient(WithConfig.Hostname);
-                    PopStream = Ssl;
+                    NetStream = Ssl;
                 }
-                else PopStream = PopStream = PopSocket.GetStream();
+                else NetStream = NetStream = NetSocket.GetStream();
             }
             catch (Exception e)
             {
@@ -51,8 +51,8 @@ namespace MailClient
             if (!IsConnected()) return true;
             try
             {
-                PopStream.Close();
-                PopSocket.Close();
+                NetStream.Close();
+                NetSocket.Close();
             }
             catch
             {
@@ -60,7 +60,7 @@ namespace MailClient
             }
 
             ConnectionOpened = false;
-            PopSocket = null;
+            NetSocket = null;
             return true;
         }
 
@@ -74,7 +74,7 @@ namespace MailClient
                     string Msg = Command.BuildVerb();
                     {
                         byte[] CommandBytes = Encoding.ASCII.GetBytes(Msg);
-                        PopStream.Write(CommandBytes, 0, CommandBytes.Length);
+                        NetStream.Write(CommandBytes, 0, CommandBytes.Length);
                     }
                     OnLineSentOrReceived(false, Msg);
                 }
@@ -83,11 +83,11 @@ namespace MailClient
                 if(Command.ExpectsResponse())
                 do
                 {
-                    byte[] Response = new byte[PopSocket.ReceiveBufferSize];
-                    int ResponseLen = PopStream.Read(Response, 0, PopSocket.ReceiveBufferSize);
+                    byte[] Response = new byte[NetSocket.ReceiveBufferSize];
+                    int ResponseLen = NetStream.Read(Response, 0, NetSocket.ReceiveBufferSize);
                     RMsg += Encoding.ASCII.GetString(Response, 0, ResponseLen);
                 }
-                while (Command.IsMultiline() && !RMsg.EndsWith(PopCommand.MultilineTerminator));
+                while (Command.IsMultiline() && !Command.IsMultilineTerminated(RMsg));
 
                 ErrorEncountered = !Command.ParseResponse(RMsg);
                 OnLineSentOrReceived(true, RMsg);

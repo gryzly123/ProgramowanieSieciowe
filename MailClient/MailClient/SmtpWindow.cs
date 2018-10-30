@@ -55,13 +55,47 @@ namespace MailClient
             IsSmtpRunning = true;
             ButtonSendMessage.Invoke(new Action(() =>
             {
-                ButtonSendMessage.Enabled = true;
                 ListboxLog.Items.Add("-- connection started --");
                 ListboxLog.SelectedIndex = ListboxLog.Items.Count - 1;
             }));
 
             //push auth command here
+            ScHello HelloCmd = new ScHello();
+            HelloCmd.OnHandshakeReceived += OnServerHandshakeReceived;
+            Service.PushNewCommand(HelloCmd);
+
         }
+
+        private void OnServerHandshakeReceived(bool Success)
+        {
+            if (Success)
+            {
+                ScAuthorize AuthCmd = new ScAuthorize();
+                AuthCmd.OnUserLogin += OnServerAuthorizationComplete;
+                Service.PushNewCommand(AuthCmd);
+            }
+            else
+                ForceServiceShutdown("Incorrect handshake");
+        }
+        private void OnServerAuthorizationComplete(bool Success)
+        {
+            if(Success)
+            {
+                //ScSendMessage SendCmd = new ScSendMessage(GetMailMessage());
+                //SendCmd.OnMessageSet += OnServerTransactionComplete;
+                //Service.PushNewCommand(SendCmd);
+            }
+            else
+                ForceServiceShutdown("Incorrect username or password");
+        }
+
+        private void ForceServiceShutdown(string Reason)
+        {
+            Service.RequestStopService();
+            Service = null;
+            MessageBox.Show(Reason);
+        }
+
         private void OnSmtpConnectionClosed(bool CleanShutdown)
         {
             ButtonSendMessage.Invoke(new Action(() =>
