@@ -42,7 +42,7 @@ namespace MailClient
             try
             {
                 Reader = new XmlTextReader(ConfigPath);
-                bool hasHostname = false, hasUsername = false, hasPassword = false, hasPort = false, hasRefrate = false, hasSsl = false;
+                bool hasHostname = false, hasUsername = false, hasPassword = false, hasPort = false, hasSsl = false;
                 while (Reader.Read())
                     switch (Reader.Name)
                     {
@@ -74,12 +74,13 @@ namespace MailClient
                             break;
 
                         default:
-                            ReadAdditionalVerbs(Reader.Name, Reader.GetAttribute(0));
+                            if(Reader.AttributeCount > 0)
+                                ReadAdditionalVerbs(Reader.Name, Reader.GetAttribute(0));
                             break;
                     }
 
                 Reader.Close();
-                return hasHostname && hasUsername && hasPassword && hasPort && hasRefrate && hasSsl;
+                return hasHostname && hasUsername && hasPassword && hasPort && hasSsl;
             }
             catch { if(Reader != null) Reader.Close(); }
             return false;

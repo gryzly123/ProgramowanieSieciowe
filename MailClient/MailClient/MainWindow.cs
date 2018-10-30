@@ -7,7 +7,7 @@ namespace MailClient
     public partial class MainWindow : Form
     {
         private PopService Service;
-        private const string ConfigFilename = "MailClientConfig.xml";
+        private const string ConfigFilename = "PopConfig.xml";
         private const string ConfigFilenameSmtp = "SmtpConfig.xml";
         private MailDirectory Inbox = new MailDirectory("Inbox");
         private bool IsPopRunning = false;
@@ -70,6 +70,7 @@ namespace MailClient
         {
             new Configuration(PopConfig, SmtpConfig).ShowDialog();
             PopConfig.SaveConfig(ConfigFilename);
+            SmtpConfig.SaveConfig(ConfigFilenameSmtp);
         }
         private void MainWindow_FormClosed(object sender, FormClosedEventArgs e)
         {

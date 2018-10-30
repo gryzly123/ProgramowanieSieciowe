@@ -55,7 +55,6 @@
             // 
             // ButtonSendMessage
             // 
-            this.ButtonSendMessage.Enabled = false;
             this.ButtonSendMessage.Location = new System.Drawing.Point(252, 16);
             this.ButtonSendMessage.Name = "ButtonSendMessage";
             this.ButtonSendMessage.Size = new System.Drawing.Size(114, 33);

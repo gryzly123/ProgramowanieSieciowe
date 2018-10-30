@@ -46,7 +46,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Inbox\MailMessage.cs" />
+    <Compile Include="Backend\Inbox\MailMessage.cs" />
+    <Compile Include="Backend\Smtp\Commands\ScInitialRead.cs" />
     <Compile Include="SmtpWindow.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -65,19 +66,19 @@
     <Compile Include="AppConfig.Designer.cs">
       <DependentUpon>AppConfig.cs</DependentUpon>
     </Compile>
-    <Compile Include="SmtpConnectionSettings.cs" />
-    <Compile Include="NetConnectionSettings.cs" />
-    <Compile Include="Pop\Commands\PcAuthorize.cs" />
-    <Compile Include="Pop\Commands\PcFetchMessage.cs" />
-    <Compile Include="Pop\Commands\PcQuit.cs" />
-    <Compile Include="Pop\Commands\PcListMessages.cs" />
-    <Compile Include="Pop\NetCommand.cs" />
-    <Compile Include="Pop\NetConnection.cs" />
-    <Compile Include="Pop\PopConnectionSettings.cs" />
-    <Compile Include="Pop\PopService.cs" />
+    <Compile Include="Backend\Smtp\SmtpConnectionSettings.cs" />
+    <Compile Include="Backend\NetConnectionSettings.cs" />
+    <Compile Include="Backend\Pop\Commands\PcAuthorize.cs" />
+    <Compile Include="Backend\Pop\Commands\PcFetchMessage.cs" />
+    <Compile Include="Backend\Pop\Commands\PcQuit.cs" />
+    <Compile Include="Backend\Pop\Commands\PcListMessages.cs" />
+    <Compile Include="Backend\NetCommand.cs" />
+    <Compile Include="Backend\NetConnection.cs" />
+    <Compile Include="Backend\Pop\PopConnectionSettings.cs" />
+    <Compile Include="Backend\Pop\PopService.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SmtpService.cs" />
+    <Compile Include="Backend\Smtp\SmtpService.cs" />
     <EmbeddedResource Include="SmtpWindow.resx">
       <DependentUpon>SmtpWindow.cs</DependentUpon>
     </EmbeddedResource>
@@ -109,5 +110,6 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
