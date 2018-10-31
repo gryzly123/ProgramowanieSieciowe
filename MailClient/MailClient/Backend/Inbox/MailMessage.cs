@@ -11,11 +11,10 @@ namespace MailClient
 
     public class MailMessage
     {
-          public string Message;
         //public string   From;
-        //public string[] To;
-        //public string   Topic;
-        //public string   Message;
+        public string[] Recipients;
+        public string   Subject;
+        public string   Message;
         //public DateTime Received;
         //public bool     Deleted;
 
@@ -46,7 +45,8 @@ namespace MailClient
 
         public bool AddMessage(string PopUid, MailMessage Message)
         {
-            Messages.TryGetValue(PopUid, out MailMessage Msg);
+            MailMessage Msg = null;
+            Messages.TryGetValue(PopUid, out Msg);
             if (Msg != null) return false;
 
             if (Message == null) return false;
@@ -75,7 +75,8 @@ namespace MailClient
 
         public MailMessage GetMessage(string PopUid)
         {
-            Messages.TryGetValue(PopUid, out MailMessage Msg);
+            MailMessage Msg = null;
+            Messages.TryGetValue(PopUid, out Msg);
             return Msg;
         }
 

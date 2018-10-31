@@ -96,13 +96,13 @@
             // 
             // ButtonSendMessage
             // 
-            this.ButtonSendMessage.Enabled = false;
             this.ButtonSendMessage.Location = new System.Drawing.Point(252, 16);
             this.ButtonSendMessage.Name = "ButtonSendMessage";
             this.ButtonSendMessage.Size = new System.Drawing.Size(114, 33);
             this.ButtonSendMessage.TabIndex = 8;
             this.ButtonSendMessage.Text = "New e-mail (SMTP)";
             this.ButtonSendMessage.UseVisualStyleBackColor = true;
+            this.ButtonSendMessage.Click += new System.EventHandler(this.ButtonSendMessage_Click);
             // 
             // TimerPopRefresh
             // 

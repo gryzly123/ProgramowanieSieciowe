@@ -7,12 +7,14 @@ namespace MailClient
     public partial class MainWindow : Form
     {
         private PopService Service;
-        private const string ConfigFilename = "MailClientConfig.xml";
+        private const string ConfigFilenamePop = "PopConfig.xml";
+        private const string ConfigFilenameSmtp = "SmtpConfig.xml";
         private MailDirectory Inbox = new MailDirectory("Inbox");
         private bool IsPopRunning = false;
         private int NewMessageCounter = 0;
         private int FetchMessageCounter = 0;
         PopConnectionSettings PopConfig;
+        SmtpConnectionSettings SmtpConfig;
 
         public MainWindow()
         {
@@ -23,8 +25,12 @@ namespace MailClient
         private void SetupConfig()
         {
             PopConfig = new PopConnectionSettings();
-            if (!PopConfig.TryReadFromFile(ConfigFilename))
-                MessageBox.Show("Config file could not be parsed (either missing or corrupted).\nPlease fill your information in the config menu.");
+            if (!PopConfig.TryReadFromFile(ConfigFilenamePop))
+                MessageBox.Show("POP3 config file could not be parsed (either missing or corrupted).\nPlease fill your information in the config menu.");
+
+            SmtpConfig = new SmtpConnectionSettings();
+            if (!SmtpConfig.TryReadFromFile(ConfigFilenameSmtp))
+                MessageBox.Show("SMTP config file could not be parsed (either missing or corrupted).\nPlease fill your information in the config menu.");
         }
 
         #region Form events
@@ -62,21 +68,31 @@ namespace MailClient
 
         private void ButtonConfig_Click(object sender, EventArgs e)
         {
-            new Configuration(PopConfig).ShowDialog();
-            PopConfig.SaveConfig(ConfigFilename);
+            new Configuration(PopConfig, SmtpConfig).ShowDialog();
+            PopConfig.SaveConfig(ConfigFilenamePop);
+            SmtpConfig.SaveConfig(ConfigFilenameSmtp);
         }
         private void MainWindow_FormClosed(object sender, FormClosedEventArgs e)
         {
             if(Service != null) Service.RequestStopService();
 
-            if(!PopConfig.SaveConfig(ConfigFilename))
-                MessageBox.Show("Could not save your config (most likely due\nto permission issues).");
+            if(!PopConfig.SaveConfig(ConfigFilenamePop))
+                MessageBox.Show("Could not save your POP3 config (most likely due\nto permission issues).");
+            if (!SmtpConfig.SaveConfig(ConfigFilenameSmtp))
+                MessageBox.Show("Could not save your SMTP config (most likely due\nto permission issues).");
         }
         private void TimerPopRefresh_Tick(object sender, EventArgs e)
         {
             //pomijam tego ticka jeśli połączenie nie zakończyło się
             if (IsPopRunning) return;
             StartConnection();
+        }
+
+        private void ButtonSendMessage_Click(object sender, EventArgs e)
+        {
+            SmtpWindow Form = new SmtpWindow();
+            Form.SetupConfig(SmtpConfig);
+            Form.Show();
         }
         #endregion
 
