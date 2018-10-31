@@ -59,14 +59,18 @@ namespace MailClient
             {
                 case State.SentAuthType:
                     Success = Response.StartsWith("334");
-                    if (Success) AuthState = State.AcceptedAuthType;
+                    AuthState = Success ? State.AcceptedAuthType : State.Failed;
                     return Success;
                 case State.SentB64:
                     Success = Response.StartsWith("235");
-                    if (Success) AuthState = State.AcceptedB64;
+                    AuthState = Success ? State.AcceptedB64 : State.Failed;
+                    if (Success)
+                        OnUserLogin(true);
                     return Success;
 
-                default: return false;
+                default:
+                    OnUserLogin(false);
+                    return false;
             }
         }
     }

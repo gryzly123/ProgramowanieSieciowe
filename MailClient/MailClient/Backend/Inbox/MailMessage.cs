@@ -11,11 +11,10 @@ namespace MailClient
 
     public class MailMessage
     {
-          public string Message;
         //public string   From;
-        //public string[] To;
-        //public string   Topic;
-        //public string   Message;
+        public string[] Recipients;
+        public string   Subject;
+        public string   Message;
         //public DateTime Received;
         //public bool     Deleted;
 

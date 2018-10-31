@@ -100,7 +100,7 @@ namespace MailClient
 
         internal void RequestStopService()
         {
-            throw new NotImplementedException();
+            ShutdownRequested = true;
         }
     }
 }
