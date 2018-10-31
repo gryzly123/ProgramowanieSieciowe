@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace MailClient
+﻿namespace MailClient
 {
     public class ScHello : SmtpCommand
     {

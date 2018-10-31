@@ -7,7 +7,7 @@ namespace MailClient
     public partial class MainWindow : Form
     {
         private PopService Service;
-        private const string ConfigFilename = "PopConfig.xml";
+        private const string ConfigFilenamePop = "PopConfig.xml";
         private const string ConfigFilenameSmtp = "SmtpConfig.xml";
         private MailDirectory Inbox = new MailDirectory("Inbox");
         private bool IsPopRunning = false;
@@ -25,7 +25,7 @@ namespace MailClient
         private void SetupConfig()
         {
             PopConfig = new PopConnectionSettings();
-            if (!PopConfig.TryReadFromFile(ConfigFilename))
+            if (!PopConfig.TryReadFromFile(ConfigFilenamePop))
                 MessageBox.Show("POP3 config file could not be parsed (either missing or corrupted).\nPlease fill your information in the config menu.");
 
             SmtpConfig = new SmtpConnectionSettings();
@@ -69,15 +69,17 @@ namespace MailClient
         private void ButtonConfig_Click(object sender, EventArgs e)
         {
             new Configuration(PopConfig, SmtpConfig).ShowDialog();
-            PopConfig.SaveConfig(ConfigFilename);
+            PopConfig.SaveConfig(ConfigFilenamePop);
             SmtpConfig.SaveConfig(ConfigFilenameSmtp);
         }
         private void MainWindow_FormClosed(object sender, FormClosedEventArgs e)
         {
             if(Service != null) Service.RequestStopService();
 
-            if(!PopConfig.SaveConfig(ConfigFilename))
-                MessageBox.Show("Could not save your config (most likely due\nto permission issues).");
+            if(!PopConfig.SaveConfig(ConfigFilenamePop))
+                MessageBox.Show("Could not save your POP3 config (most likely due\nto permission issues).");
+            if (!SmtpConfig.SaveConfig(ConfigFilenameSmtp))
+                MessageBox.Show("Could not save your SMTP config (most likely due\nto permission issues).");
         }
         private void TimerPopRefresh_Tick(object sender, EventArgs e)
         {
