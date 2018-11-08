@@ -30,17 +30,17 @@
         {
             this.label1 = new System.Windows.Forms.Label();
             this.ButtonAccept = new System.Windows.Forms.Button();
-            this.InPopHostname = new System.Windows.Forms.TextBox();
-            this.GroupPop = new System.Windows.Forms.GroupBox();
-            this.CheckPopSsl = new System.Windows.Forms.CheckBox();
+            this.InFtpHostname = new System.Windows.Forms.TextBox();
+            this.GroupFtp = new System.Windows.Forms.GroupBox();
+            this.CheckFtpSsl = new System.Windows.Forms.CheckBox();
             this.label6 = new System.Windows.Forms.Label();
-            this.InPopRefrate = new System.Windows.Forms.TextBox();
+            this.InFtpRefrate = new System.Windows.Forms.TextBox();
             this.label5 = new System.Windows.Forms.Label();
-            this.InPopPassword = new System.Windows.Forms.TextBox();
+            this.InFtpPassword = new System.Windows.Forms.TextBox();
             this.label4 = new System.Windows.Forms.Label();
-            this.InPopUsername = new System.Windows.Forms.TextBox();
+            this.InFtpUsername = new System.Windows.Forms.TextBox();
             this.label3 = new System.Windows.Forms.Label();
-            this.InPopPort = new System.Windows.Forms.TextBox();
+            this.InFtpPort = new System.Windows.Forms.TextBox();
             this.label2 = new System.Windows.Forms.Label();
             this.GroupSmtp = new System.Windows.Forms.GroupBox();
             this.CheckSmtpSsl = new System.Windows.Forms.CheckBox();
@@ -53,7 +53,7 @@
             this.label11 = new System.Windows.Forms.Label();
             this.InSmtpHostname = new System.Windows.Forms.TextBox();
             this.label12 = new System.Windows.Forms.Label();
-            this.GroupPop.SuspendLayout();
+            this.GroupFtp.SuspendLayout();
             this.GroupSmtp.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -76,44 +76,44 @@
             this.ButtonAccept.UseVisualStyleBackColor = true;
             this.ButtonAccept.Click += new System.EventHandler(this.ButtonAccept_Click);
             // 
-            // InPopHostname
+            // InFtpHostname
             // 
-            this.InPopHostname.Location = new System.Drawing.Point(94, 23);
-            this.InPopHostname.Name = "InPopHostname";
-            this.InPopHostname.Size = new System.Drawing.Size(100, 20);
-            this.InPopHostname.TabIndex = 2;
-            this.InPopHostname.TextChanged += new System.EventHandler(this.InHostname_TextChanged);
+            this.InFtpHostname.Location = new System.Drawing.Point(94, 23);
+            this.InFtpHostname.Name = "InFtpHostname";
+            this.InFtpHostname.Size = new System.Drawing.Size(100, 20);
+            this.InFtpHostname.TabIndex = 2;
+            this.InFtpHostname.TextChanged += new System.EventHandler(this.InHostname_TextChanged);
             // 
-            // GroupPop
+            // GroupFtp
             // 
-            this.GroupPop.Controls.Add(this.CheckPopSsl);
-            this.GroupPop.Controls.Add(this.label6);
-            this.GroupPop.Controls.Add(this.InPopRefrate);
-            this.GroupPop.Controls.Add(this.label5);
-            this.GroupPop.Controls.Add(this.InPopPassword);
-            this.GroupPop.Controls.Add(this.label4);
-            this.GroupPop.Controls.Add(this.InPopUsername);
-            this.GroupPop.Controls.Add(this.label3);
-            this.GroupPop.Controls.Add(this.InPopPort);
-            this.GroupPop.Controls.Add(this.label2);
-            this.GroupPop.Controls.Add(this.InPopHostname);
-            this.GroupPop.Controls.Add(this.label1);
-            this.GroupPop.Location = new System.Drawing.Point(12, 12);
-            this.GroupPop.Name = "GroupPop";
-            this.GroupPop.Size = new System.Drawing.Size(211, 190);
-            this.GroupPop.TabIndex = 3;
-            this.GroupPop.TabStop = false;
-            this.GroupPop.Text = "POP3";
+            this.GroupFtp.Controls.Add(this.CheckFtpSsl);
+            this.GroupFtp.Controls.Add(this.label6);
+            this.GroupFtp.Controls.Add(this.InFtpRefrate);
+            this.GroupFtp.Controls.Add(this.label5);
+            this.GroupFtp.Controls.Add(this.InFtpPassword);
+            this.GroupFtp.Controls.Add(this.label4);
+            this.GroupFtp.Controls.Add(this.InFtpUsername);
+            this.GroupFtp.Controls.Add(this.label3);
+            this.GroupFtp.Controls.Add(this.InFtpPort);
+            this.GroupFtp.Controls.Add(this.label2);
+            this.GroupFtp.Controls.Add(this.InFtpHostname);
+            this.GroupFtp.Controls.Add(this.label1);
+            this.GroupFtp.Location = new System.Drawing.Point(12, 12);
+            this.GroupFtp.Name = "GroupFtp";
+            this.GroupFtp.Size = new System.Drawing.Size(211, 190);
+            this.GroupFtp.TabIndex = 3;
+            this.GroupFtp.TabStop = false;
+            this.GroupFtp.Text = "FTP";
             // 
-            // CheckPopSsl
+            // CheckFtpSsl
             // 
-            this.CheckPopSsl.AutoSize = true;
-            this.CheckPopSsl.Location = new System.Drawing.Point(94, 155);
-            this.CheckPopSsl.Name = "CheckPopSsl";
-            this.CheckPopSsl.Size = new System.Drawing.Size(15, 14);
-            this.CheckPopSsl.TabIndex = 12;
-            this.CheckPopSsl.UseVisualStyleBackColor = true;
-            this.CheckPopSsl.CheckedChanged += new System.EventHandler(this.ChecPopSsl_CheckedChanged);
+            this.CheckFtpSsl.AutoSize = true;
+            this.CheckFtpSsl.Location = new System.Drawing.Point(94, 155);
+            this.CheckFtpSsl.Name = "CheckFtpSsl";
+            this.CheckFtpSsl.Size = new System.Drawing.Size(15, 14);
+            this.CheckFtpSsl.TabIndex = 12;
+            this.CheckFtpSsl.UseVisualStyleBackColor = true;
+            this.CheckFtpSsl.CheckedChanged += new System.EventHandler(this.ChecFtpSsl_CheckedChanged);
             // 
             // label6
             // 
@@ -124,13 +124,13 @@
             this.label6.TabIndex = 11;
             this.label6.Text = "Use SSL";
             // 
-            // InPopRefrate
+            // InFtpRefrate
             // 
-            this.InPopRefrate.Location = new System.Drawing.Point(94, 127);
-            this.InPopRefrate.Name = "InPopRefrate";
-            this.InPopRefrate.Size = new System.Drawing.Size(100, 20);
-            this.InPopRefrate.TabIndex = 10;
-            this.InPopRefrate.TextChanged += new System.EventHandler(this.InRefrate_TextChanged);
+            this.InFtpRefrate.Location = new System.Drawing.Point(94, 127);
+            this.InFtpRefrate.Name = "InFtpRefrate";
+            this.InFtpRefrate.Size = new System.Drawing.Size(100, 20);
+            this.InFtpRefrate.TabIndex = 10;
+            this.InFtpRefrate.TextChanged += new System.EventHandler(this.InRefrate_TextChanged);
             // 
             // label5
             // 
@@ -141,13 +141,13 @@
             this.label5.TabIndex = 9;
             this.label5.Text = "Refresh rate (s)";
             // 
-            // InPopPassword
+            // InFtpPassword
             // 
-            this.InPopPassword.Location = new System.Drawing.Point(94, 101);
-            this.InPopPassword.Name = "InPopPassword";
-            this.InPopPassword.Size = new System.Drawing.Size(100, 20);
-            this.InPopPassword.TabIndex = 8;
-            this.InPopPassword.TextChanged += new System.EventHandler(this.InPassword_TextChanged);
+            this.InFtpPassword.Location = new System.Drawing.Point(94, 101);
+            this.InFtpPassword.Name = "InFtpPassword";
+            this.InFtpPassword.Size = new System.Drawing.Size(100, 20);
+            this.InFtpPassword.TabIndex = 8;
+            this.InFtpPassword.TextChanged += new System.EventHandler(this.InPassword_TextChanged);
             // 
             // label4
             // 
@@ -158,13 +158,13 @@
             this.label4.TabIndex = 7;
             this.label4.Text = "Password";
             // 
-            // InPopUsername
+            // InFtpUsername
             // 
-            this.InPopUsername.Location = new System.Drawing.Point(94, 75);
-            this.InPopUsername.Name = "InPopUsername";
-            this.InPopUsername.Size = new System.Drawing.Size(100, 20);
-            this.InPopUsername.TabIndex = 6;
-            this.InPopUsername.TextChanged += new System.EventHandler(this.InUsername_TextChanged);
+            this.InFtpUsername.Location = new System.Drawing.Point(94, 75);
+            this.InFtpUsername.Name = "InFtpUsername";
+            this.InFtpUsername.Size = new System.Drawing.Size(100, 20);
+            this.InFtpUsername.TabIndex = 6;
+            this.InFtpUsername.TextChanged += new System.EventHandler(this.InUsername_TextChanged);
             // 
             // label3
             // 
@@ -175,13 +175,13 @@
             this.label3.TabIndex = 5;
             this.label3.Text = "Username";
             // 
-            // InPopPort
+            // InFtpPort
             // 
-            this.InPopPort.Location = new System.Drawing.Point(94, 49);
-            this.InPopPort.Name = "InPopPort";
-            this.InPopPort.Size = new System.Drawing.Size(100, 20);
-            this.InPopPort.TabIndex = 4;
-            this.InPopPort.TextChanged += new System.EventHandler(this.InPort_TextChanged);
+            this.InFtpPort.Location = new System.Drawing.Point(94, 49);
+            this.InFtpPort.Name = "InFtpPort";
+            this.InFtpPort.Size = new System.Drawing.Size(100, 20);
+            this.InFtpPort.TabIndex = 4;
+            this.InFtpPort.TextChanged += new System.EventHandler(this.InPort_TextChanged);
             // 
             // label2
             // 
@@ -305,13 +305,13 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(450, 241);
             this.Controls.Add(this.GroupSmtp);
-            this.Controls.Add(this.GroupPop);
+            this.Controls.Add(this.GroupFtp);
             this.Controls.Add(this.ButtonAccept);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.Name = "Configuration";
             this.Text = "Setup";
-            this.GroupPop.ResumeLayout(false);
-            this.GroupPop.PerformLayout();
+            this.GroupFtp.ResumeLayout(false);
+            this.GroupFtp.PerformLayout();
             this.GroupSmtp.ResumeLayout(false);
             this.GroupSmtp.PerformLayout();
             this.ResumeLayout(false);
@@ -322,17 +322,17 @@
 
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Button ButtonAccept;
-        private System.Windows.Forms.TextBox InPopHostname;
-        private System.Windows.Forms.GroupBox GroupPop;
-        private System.Windows.Forms.TextBox InPopRefrate;
+        private System.Windows.Forms.TextBox InFtpHostname;
+        private System.Windows.Forms.GroupBox GroupFtp;
+        private System.Windows.Forms.TextBox InFtpRefrate;
         private System.Windows.Forms.Label label5;
-        private System.Windows.Forms.TextBox InPopPassword;
+        private System.Windows.Forms.TextBox InFtpPassword;
         private System.Windows.Forms.Label label4;
-        private System.Windows.Forms.TextBox InPopUsername;
+        private System.Windows.Forms.TextBox InFtpUsername;
         private System.Windows.Forms.Label label3;
-        private System.Windows.Forms.TextBox InPopPort;
+        private System.Windows.Forms.TextBox InFtpPort;
         private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.CheckBox CheckPopSsl;
+        private System.Windows.Forms.CheckBox CheckFtpSsl;
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.GroupBox GroupSmtp;
         private System.Windows.Forms.TextBox InSmtpPassword;

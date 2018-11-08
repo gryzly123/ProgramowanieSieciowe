@@ -14,8 +14,7 @@ namespace FtpClient
             Failed
         } private AuthorizationState AuthState;
 
-        public NetEvent OnUserLoginSuccess;
-        public NetEvent OnUserLoginFailed;
+        public NetEventRetVal OnUserLogin;
         FtpConnectionSettings Creds;
 
         public FcAuthorize()
@@ -43,26 +42,20 @@ namespace FtpClient
 
         internal override bool ParseResponse(string Response)
         {
-            System.Windows.Forms.MessageBox.Show(Response);
-            //if (!Response.StartsWith(OK))
-            //{
-            //    AuthState = AuthorizationState.Failed;
-            //    OnUserLoginFailed();
-            //}
-            //
-            //switch(AuthState)
-            //{
-            //    case AuthorizationState.SentLogin:
-            //        AuthState = AuthorizationState.AcceptedLogin;
-            //        return true;
-            //
-            //    case AuthorizationState.SentPassword:
-            //        AuthState = AuthorizationState.AcceptedPassword;
-            //        OnUserLoginSuccess();
-            //        ParentService.State = PopState.Transaction;
-            //        return true;
-            //}
-            //
+            bool Success = false;
+            switch(AuthState)
+            {
+                case AuthorizationState.SentLogin:
+                    Success = Response.StartsWith("331");
+                    AuthState = Success ? AuthorizationState.AcceptedLogin : AuthorizationState.Failed;
+                    return Success;
+            
+                case AuthorizationState.SentPassword:
+                    Success = Response.StartsWith("230");
+                    AuthState = Success ? AuthorizationState.AcceptedPassword : AuthorizationState.Failed;
+                    OnUserLogin(Success);
+                    return Success;
+            }
             return false;
         }
 

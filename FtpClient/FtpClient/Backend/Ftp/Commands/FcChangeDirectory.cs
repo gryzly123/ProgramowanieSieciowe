@@ -4,13 +4,13 @@ namespace FtpClient
 {
     public class FcChangeDirectory : FtpCommand
     {
-        private MailDirectory CurrentDir;
+        private FtpDirectory CurrentDir;
         private int    CurrentId;
         private string CurrentUid;
 
         private bool CommandSent = false;
 
-        public FcChangeDirectory(MailDirectory TargetDir, int TargetId, string TargetUid)
+        public FcChangeDirectory(FtpDirectory TargetDir, int TargetId, string TargetUid)
         {
             CurrentDir = TargetDir;
             CurrentId = TargetId;

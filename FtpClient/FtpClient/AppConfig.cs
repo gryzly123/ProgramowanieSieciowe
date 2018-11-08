@@ -5,42 +5,42 @@ namespace FtpClient
 {
     public partial class Configuration : Form
     {
-        private FtpConnectionSettings InPopSrettings, TempPopSettings;
-        public Configuration(FtpConnectionSettings InPop, FtpConnectionSettings InSmtp)
+        private FtpConnectionSettings InFtpSrettings, TempFtpSettings;
+        public Configuration(FtpConnectionSettings InFtp)
         {
             InitializeComponent();
 
-            this.InPopSrettings = InPop;
+            this.InFtpSrettings = InFtp;
 
-            TempPopSettings = new FtpConnectionSettings();
-            TempPopSettings.CloneFrom(InPop);
+            TempFtpSettings = new FtpConnectionSettings();
+            TempFtpSettings.CloneFrom(InFtp);
 
-            InPopHostname.Text  = TempPopSettings.Hostname;
-            InPopPort    .Text  = TempPopSettings.Port.ToString();
-            InPopUsername.Text  = TempPopSettings.UserLogin;
-            InPopPassword.Text  = TempPopSettings.UserPassword;
-            CheckPopSsl.Checked = TempPopSettings.UseSsl;
+            InFtpHostname.Text  = TempFtpSettings.Hostname;
+            InFtpPort    .Text  = TempFtpSettings.Port.ToString();
+            InFtpUsername.Text  = TempFtpSettings.UserLogin;
+            InFtpPassword.Text  = TempFtpSettings.UserPassword;
+            CheckFtpSsl.Checked = TempFtpSettings.UseSsl;
         }
 
         private void InHostname_TextChanged(object sender, EventArgs e)
         {
-            TempPopSettings.Hostname = InPopHostname.Text;
+            TempFtpSettings.Hostname = InFtpHostname.Text;
         }
 
         private void InPort_TextChanged(object sender, EventArgs e)
         {
-            if (!Int16.TryParse(InPopPort.Text, out TempPopSettings.Port))
-                InPopPort.Text = TempPopSettings.GetDefaultPort().ToString();
+            if (!Int16.TryParse(InFtpPort.Text, out TempFtpSettings.Port))
+                InFtpPort.Text = TempFtpSettings.GetDefaultPort().ToString();
         }
 
         private void InUsername_TextChanged(object sender, EventArgs e)
         {
-            TempPopSettings.UserLogin = InPopUsername.Text;
+            TempFtpSettings.UserLogin = InFtpUsername.Text;
         }
 
         private void InPassword_TextChanged(object sender, EventArgs e)
         {
-            TempPopSettings.UserPassword = InPopPassword.Text;
+            TempFtpSettings.UserPassword = InFtpPassword.Text;
         }
 
         private void InRefrate_TextChanged(object sender, EventArgs e)
@@ -67,14 +67,14 @@ namespace FtpClient
         {
         }
 
-        private void ChecPopSsl_CheckedChanged(object sender, EventArgs e)
+        private void ChecFtpSsl_CheckedChanged(object sender, EventArgs e)
         {
-            TempPopSettings.UseSsl = CheckPopSsl.Checked;
+            TempFtpSettings.UseSsl = CheckFtpSsl.Checked;
         }
 
         private void ButtonAccept_Click(object sender, EventArgs e)
         {
-            InPopSrettings.CloneFrom(TempPopSettings);
+            InFtpSrettings.CloneFrom(TempFtpSettings);
             Close();
         }
 

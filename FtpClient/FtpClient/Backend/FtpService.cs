@@ -91,7 +91,7 @@ namespace FtpClient
                     FtpCommand Cmd = null;
                     bool Deq = CommandQueue.TryDequeue(out Cmd);
                     if (!Connection.ExecuteCommand(Cmd))
-                        OnLineSentOrReceived(false, "PopCommand error for " + Cmd.ToString());
+                        OnLineSentOrReceived(false, "FtpCommand error for " + Cmd.ToString());
                     System.Threading.Thread.Sleep(100);
                 }
                 else System.Threading.Thread.Sleep(100);

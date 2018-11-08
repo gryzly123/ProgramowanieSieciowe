@@ -22,7 +22,13 @@
 
         protected FtpService ParentService;
         internal void SetFtpService(FtpService InService) { ParentService = InService; }
-        internal override bool IsMultilineTerminated(string Msg) { return false; }// Msg.EndsWith(MultilineTerminator); }
+        internal override bool IsMultilineTerminated(string Msg)
+        {
+            string[] Splits = Msg.Split(new string[] { "\r\n" }, System.StringSplitOptions.RemoveEmptyEntries);
+            if (Splits.Length == 0) return false;
+            if (Splits[Splits.Length - 1].Length < 4) return false;
+            return Splits[Splits.Length - 1][3] == ' ';
+        }
         internal override bool OmmitVerb() { return false; }
     }
 }

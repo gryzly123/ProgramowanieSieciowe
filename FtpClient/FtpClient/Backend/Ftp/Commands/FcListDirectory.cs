@@ -8,12 +8,12 @@ namespace FtpClient
     public class FcListDirectory : FtpCommand
     {
         private bool CommandSent = false;
-        private MailDirectory CurrentDir;
+        private FtpDirectory CurrentDir;
         private Dictionary<int, string> NewMessages = new Dictionary<int, string>();
 
         public NewMessagesReceived OnNewMessagesReceived;
 
-        public FcListDirectory(MailDirectory TargetDir)
+        public FcListDirectory(FtpDirectory TargetDir)
         {
             CurrentDir = TargetDir;
         }
@@ -50,8 +50,8 @@ namespace FtpClient
             //        CurrentDir.AddMessage(Uid, Msg);
             //    }
             //    
-            //    Msg.PopUid = Uid;
-            //    if (!Msg.PopReceived) NewMessages[It] = Uid;
+            //    Msg.FtpUid = Uid;
+            //    if (!Msg.FtpReceived) NewMessages[It] = Uid;
             //}
             //
             //OnNewMessagesReceived(NewMessages);

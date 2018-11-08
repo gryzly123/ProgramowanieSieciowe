@@ -7,31 +7,25 @@ namespace FtpClient
     public partial class MainWindow : Form
     {
         private FtpService Service;
-        private const string ConfigFilenamePop = "PopConfig.xml";
-        private const string ConfigFilenameSmtp = "SmtpConfig.xml";
-        private MailDirectory Inbox = new MailDirectory("Inbox");
-        private bool IsPopRunning = false;
-        private int NewMessageCounter = 0;
-        private int FetchMessageCounter = 0;
-        FtpConnectionSettings PopConfig;
+        private const string ConfigFilenameFtp = "FtpConfig.xml";
+        FtpConnectionSettings FtpConfig;
 
         public MainWindow()
         {
             InitializeComponent();
             SetupConfig();
-            Inbox.OnMessageReceived += AddMessageToInbox;
         }
         private void SetupConfig()
         {
-            PopConfig = new FtpConnectionSettings();
-            if (!PopConfig.TryReadFromFile(ConfigFilenamePop))
-                MessageBox.Show("POP3 config file could not be parsed (either missing or corrupted).\nPlease fill your information in the config menu.");
+            FtpConfig = new FtpConnectionSettings();
+            if (!FtpConfig.TryReadFromFile(ConfigFilenameFtp))
+                MessageBox.Show("FTP config file could not be parsed (either missing or corrupted).\nPlease fill your information in the config menu.");
         }
 
         #region Form events
-        private void ButtonConnectPop_Click(object sender, EventArgs e)
+        private void ButtonConnectFtp_Click(object sender, EventArgs e)
         {
-            if (TimerPopRefresh.Enabled)
+            if (Service != null)
                 DisableService();
             else
                 EnableService();
@@ -40,68 +34,49 @@ namespace FtpClient
         private void EnableService()
         {
             ButtonConfig.Enabled = false;
-            NewMessageCounter = 0;
-            if (StartConnection())
-            {
-                TimerPopRefresh.Interval = (int)(Service.GetConfig().RefreshRateSeconds * 1000);
-                TimerPopRefresh.Start();
-            }
+            StartConnection();
         }
 
         private void DisableService()
         {
             Invoke(new Action(() =>
             {
-                if (IsPopRunning) Service.RequestStopService();
-                ButtonConnectPop.Text = "Start client";
-                TimerPopRefresh.Stop();
+                Service.RequestStopService();
+                ButtonConnectFtp.Text = "Start client";
                 ButtonConfig.Enabled = true;
-                ListboxLog.Items.Add("Inbox refresh disabled. Messages received since service started: " + NewMessageCounter.ToString());
-                ListboxLog.SelectedIndex = ListboxLog.Items.Count - 1;
             }));
         }
 
         private void ButtonConfig_Click(object sender, EventArgs e)
         {
-            new Configuration(PopConfig).ShowDialog();
-            PopConfig.SaveConfig(ConfigFilenamePop);
+            new Configuration(FtpConfig).ShowDialog();
+            FtpConfig.SaveConfig(ConfigFilenameFtp);
         }
         private void MainWindow_FormClosed(object sender, FormClosedEventArgs e)
         {
             if(Service != null) Service.RequestStopService();
 
-            if(!PopConfig.SaveConfig(ConfigFilenamePop))
+            if(!FtpConfig.SaveConfig(ConfigFilenameFtp))
                 MessageBox.Show("Could not save your FTP config (most likely due\nto permission issues).");
-        }
-        private void TimerPopRefresh_Tick(object sender, EventArgs e)
-        {
-            //pomijam tego ticka jeśli połączenie nie zakończyło się
-            if (IsPopRunning) return;
-            StartConnection();
-        }
-
-        private void ButtonSendMessage_Click(object sender, EventArgs e)
-        {
         }
         #endregion
 
-        #region POP3 connection
+        #region FTP connection
         private bool StartConnection()
         {
-            if (!IsPopRunning)
+            if (Service == null)
             {
                 Service = new FtpService();
-                Service.PushNewConfig(PopConfig);
-                Service.OnConnectionOpened += OnPopConnectionEstablished;
-                Service.OnConnectionClosed += OnPopConnectionClosed;
+                Service.PushNewConfig(FtpConfig);
+                Service.OnConnectionOpened += OnFtpConnectionEstablished;
+                Service.OnConnectionClosed += OnFtpConnectionClosed;
                 Service.OnLineSentOrReceived += ParseDebugMessage;
-                ButtonConnectPop.Enabled = false;
-                FetchMessageCounter = 0;
+                ButtonConnectFtp.Enabled = false;
                 try { Service.RequestStartService(); return true; }
                 catch (Exception E)
                 {
-                    ButtonConnectPop.Enabled = true;
-                    ButtonConnectPop.Enabled = true;
+                    ButtonConnectFtp.Enabled = true;
+                    ButtonConnectFtp.Enabled = true;
                     MessageBox.Show("Could not connect to the server. Reason: " + E.ToString());
                 }
             }
@@ -110,46 +85,47 @@ namespace FtpClient
         }
         #endregion
 
-        #region POP3 event handling - begin & end connection
-        private void OnPopConnectionEstablished()
+        #region FTP event handling - begin & end connection
+        private void OnFtpConnectionEstablished()
         {
-            IsPopRunning = true;
-            ButtonConnectPop.Invoke(new Action(() =>
+            ButtonConnectFtp.Invoke(new Action(() =>
             {
-                ButtonConnectPop.Enabled = true;
-                ButtonConnectPop.Text = "Stop client";
+                ButtonConnectFtp.Enabled = true;
+                ButtonConnectFtp.Text = "Stop client";
                 ListboxLog.Items.Add("-- connection started --");
                 ListboxLog.SelectedIndex = ListboxLog.Items.Count - 1;
             }));
 
+            FcHandshake HsCmd = new FcHandshake();
+            HsCmd.OnHandshakeReceived += OnHandshakeReceived;
+            Service.PushNewCommand(HsCmd);
+        }
+
+        private void OnHandshakeReceived()
+        {
             FcAuthorize AuthCmd = new FcAuthorize();
-            AuthCmd.OnUserLoginSuccess += OnPopUserLoggedIn;
-            AuthCmd.OnUserLoginFailed += OnPopUserFailedToAuth;
+            AuthCmd.OnUserLogin += OnFtpUserLoggedIn;
             Service.PushNewCommand(AuthCmd);
         }
-        private void OnPopConnectionClosed(bool CleanShutdown)
+
+        private void OnFtpConnectionClosed(bool CleanShutdown)
         {
-            ButtonConnectPop.Invoke(new Action(() =>
+            ButtonConnectFtp.Invoke(new Action(() =>
             {
-                IsPopRunning = false;
                 if (!CleanShutdown)
                 {
-                    ButtonConnectPop.Enabled = true;
-                    TimerPopRefresh.Stop();
+                    ButtonConnectFtp.Enabled = true;
                     ButtonConfig.Enabled = true;
                 }
 
-                ButtonConnectPop.Text = CleanShutdown
+                ButtonConnectFtp.Text = CleanShutdown
                 ? "Waiting..."
                 : "Start client";
 
                 ListboxLog.Items.Add(CleanShutdown
                     ? "-- connection ended --"
                     : "-- connection failed --");
-                ListboxLog.Items.Add("Messages received in this ping: " + FetchMessageCounter.ToString());
                 ListboxLog.SelectedIndex = ListboxLog.Items.Count - 1;
-                if (FetchMessageCounter > 0)
-                    MessageBox.Show("You have " + FetchMessageCounter.ToString() + " new messages!");
             }));
         }
         private void ParseDebugMessage(bool IsIncoming, string Message)
@@ -162,51 +138,17 @@ namespace FtpClient
         }
         #endregion
        
-        #region POP3 event handling - authorize
-        private void OnPopUserLoggedIn()
+        #region FTP event handling - authorize
+        private void OnFtpUserLoggedIn(bool Success)
         {
-            FcListDirectory Cmd = new FcListDirectory(Inbox);
-            Cmd.OnNewMessagesReceived += HandleOnMessageListReceived;
-            Service.PushNewCommand(Cmd);
+            //FcListDirectory Cmd = new FcListDirectory(Inbox);
+            //Cmd.OnNewMessagesReceived += HandleOnMessageListReceived;
+            //Service.PushNewCommand(Cmd);
         }
-        private void OnPopUserFailedToAuth()
+        private void OnFtpUserFailedToAuth()
         {
             MessageBox.Show("Connection succeeded but login failed.\nCheck your credentials.");
             DisableService();
-        }
-        #endregion
-        
-        #region POP3 event handling - messages
-        private void AddMessageToInbox(MailDirectory AtDirectory, MailMessage AtMessage)
-        {
-            ListboxMessages.Invoke(new Action(() =>
-            {
-            if (AtDirectory == Inbox)
-                ListboxMessages.Items.Insert(0, AtMessage.PopUid);
-            }));
-        }
-        private void HandleOnMessageListReceived(Dictionary<int, string> NewMessages)
-        {
-            foreach (KeyValuePair<int, string> Message in NewMessages)
-            {
-                Service.PushNewCommand(new FcChangeDirectory(Inbox, Message.Key, Message.Value));
-                ++FetchMessageCounter;
-                ++NewMessageCounter;
-            }
-            Service.PushNewCommand(new FcQuit());
-        }
-        private void ListboxMessages_SelectedMessage(object sender, EventArgs e)
-        {
-            if (ListboxMessages.SelectedIndex == -1) return;
-            string Uid = ListboxMessages.Items[ListboxMessages.SelectedIndex].ToString();
-            MailMessage Message = Inbox.GetMessage(Uid);
-            if (Message == null)
-            {
-                MessageBox.Show("internal error while reading message from memory");
-                return;
-            }
-
-            MessageBox.Show(Message.Message);
         }
         #endregion
     }
