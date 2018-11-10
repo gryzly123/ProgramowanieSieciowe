@@ -56,6 +56,7 @@
             // 
             // ListboxMessages
             // 
+            this.ListboxMessages.Font = new System.Drawing.Font("Consolas", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
             this.ListboxMessages.FormattingEnabled = true;
             this.ListboxMessages.Location = new System.Drawing.Point(12, 69);
             this.ListboxMessages.Name = "ListboxMessages";

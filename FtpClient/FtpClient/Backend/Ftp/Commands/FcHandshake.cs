@@ -16,7 +16,6 @@ namespace FtpClient
 
         internal override bool ParseResponse(string Response)
         {
-            System.Windows.Forms.MessageBox.Show(Response);
             string[] Lines = Response.Split(new string[] { EOL }, StringSplitOptions.RemoveEmptyEntries);
             if (Lines.Length == 0) return false;
             HandshakeReceived = Lines[Lines.Length - 1].StartsWith("220");

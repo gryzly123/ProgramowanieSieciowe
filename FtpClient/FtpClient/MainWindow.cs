@@ -7,6 +7,7 @@ namespace FtpClient
     public partial class MainWindow : Form
     {
         private FtpService Service;
+        private FtpDirectory CurrentDir;
         private const string ConfigFilenameFtp = "FtpConfig.xml";
         FtpConnectionSettings FtpConfig;
 
@@ -141,10 +142,49 @@ namespace FtpClient
         #region FTP event handling - authorize
         private void OnFtpUserLoggedIn(bool Success)
         {
-            //FcListDirectory Cmd = new FcListDirectory(Inbox);
-            //Cmd.OnNewMessagesReceived += HandleOnMessageListReceived;
-            //Service.PushNewCommand(Cmd);
+            FcModeToggle PasvCmd = new FcModeToggle();
+            Service.PushNewCommand(PasvCmd);
+
+            CurrentDir = new FtpDirectory();
+            FcChangeDirectory Cmd = new FcChangeDirectory(CurrentDir, CurrentDir);
+            Cmd.OnDirectoryChanged += OnFtpDirectoryChanged;
+            Service.PushNewCommand(Cmd);
         }
+
+        private void OnFtpDirectoryChanged(bool Success, FtpDirectory Dir)
+        {
+            if (!Success)
+            {
+                Invoke(new Action(() =>
+                {
+                    MessageBox.Show("Could not change to a new directory, keeping current");
+                }));
+                return;
+            }
+
+            CurrentDir = Dir;
+            FcListDirectory Cmd = new FcListDirectory(Dir);
+            Cmd.OnDirectoryListed += OnFtpDirectoryListed;
+            Service.PushNewCommand(Cmd);
+        }
+
+        private void OnFtpDirectoryListed(bool Success, FtpDirectory Dir)
+        {
+            if (!Success)
+            {
+                Invoke(new Action(() =>
+                {
+                    MessageBox.Show("Could not list directory");
+                }));
+                return;
+            }
+
+            Invoke(new Action(() =>
+            {
+                MessageBox.Show("Listing in form not implemented");
+            }));
+        }
+
         private void OnFtpUserFailedToAuth()
         {
             MessageBox.Show("Connection succeeded but login failed.\nCheck your credentials.");

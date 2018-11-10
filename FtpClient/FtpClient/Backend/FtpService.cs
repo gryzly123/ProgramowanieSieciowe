@@ -9,7 +9,15 @@ namespace FtpClient
 
     public class FtpService
     {
+        public enum Mode
+        {
+            PassiveV4,
+            PassiveV6,
+            None
+        };
+
         private FtpConnectionSettings CurrentConfig = new FtpConnectionSettings();
+        internal FtpConnectionSettings DataConfig;
         private NetConnection Connection = new NetConnection();
         private ConcurrentQueue<FtpCommand> CommandQueue = new ConcurrentQueue<FtpCommand>();
         private BackgroundWorker ServerThread;
@@ -17,10 +25,9 @@ namespace FtpClient
 
         public NetEvent OnConnectionOpened;
         public NetEventRetVal OnConnectionClosed;
-
         public DebugMessaging OnLineSentOrReceived;
-        public void OnLineSentPassthrough(bool In, string Msg) { OnLineSentOrReceived(In, Msg); }
 
+        public void OnLineSentPassthrough(bool In, string Msg) { OnLineSentOrReceived(In, Msg); }
 
         public void RequestStartService()
         {

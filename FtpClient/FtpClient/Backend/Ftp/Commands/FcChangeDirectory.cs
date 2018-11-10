@@ -5,33 +5,33 @@ namespace FtpClient
     public class FcChangeDirectory : FtpCommand
     {
         private FtpDirectory CurrentDir;
-        private int    CurrentId;
-        private string CurrentUid;
-
+        private FtpDirectory TargetDir;
         private bool CommandSent = false;
 
-        public FcChangeDirectory(FtpDirectory TargetDir, int TargetId, string TargetUid)
+        public DirectoryEvent OnDirectoryChanged;
+
+        public FcChangeDirectory(FtpDirectory CurrentDir, FtpDirectory TargetDir)
         {
-            CurrentDir = TargetDir;
-            CurrentId = TargetId;
-            CurrentUid = TargetUid;
+            this.CurrentDir = TargetDir;
+            this.TargetDir = TargetDir;
         }
 
         internal override string BuildVerb()
         {
             CommandSent = true;
-            return "RETR" + EOL;
+            return string.Format("CWD {0}{1}", TargetDir.PathString(), EOL);
         }
 
         internal override bool ParseResponse(string Response)
         {
-            System.Windows.Forms.MessageBox.Show(Response);
-            return false;
+            bool Success = Response.StartsWith("250");
+            OnDirectoryChanged(Success, Success ? TargetDir : CurrentDir);
+            return true;
         }
 
         internal override int VerbsLeft()
         {
-            return CommandSent ? 1 : 0;
+            return CommandSent ? 0 : 1;
         }
 
         internal override bool IsMultiline()

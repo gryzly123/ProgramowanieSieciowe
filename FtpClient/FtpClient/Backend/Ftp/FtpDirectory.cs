@@ -25,9 +25,24 @@ namespace FtpClient
 
         public FtpDirectory AddSubdirectory(string SubName)
         {
+            //blokujemy duplikaty
+            foreach(FtpDirectory Subdir in Subdirectories)
+                if (Subdir.DirName.Equals(SubName)) return Subdir;
+
             FtpDirectory NewDir = new FtpDirectory(this, SubName);
             Subdirectories.Add(NewDir);
             return NewDir;
+        }
+
+        public FtpFile AddFile(string FileName)
+        {
+            //blokujemy duplikaty
+            foreach (FtpFile File in Files)
+                if (File.FileName.Equals(FileName)) return File;
+
+            FtpFile NewFile = new FtpFile(this, FileName);
+            Files.Add(NewFile);
+            return NewFile;
         }
 
         public string PathString()
@@ -40,7 +55,7 @@ namespace FtpClient
     public class FtpFile
     {
         FtpDirectory OwnerDir;
-        string FileName;
+        public string FileName;
 
         public FtpFile(FtpDirectory Owner, string Name)
         {
