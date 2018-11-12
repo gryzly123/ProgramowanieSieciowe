@@ -26,8 +26,8 @@ namespace FtpClient
         public FtpDirectory AddSubdirectory(string SubName)
         {
             //blokujemy duplikaty
-            foreach(FtpDirectory Subdir in Subdirectories)
-                if (Subdir.DirName.Equals(SubName)) return Subdir;
+            FtpDirectory Duplicate = GetSubdirectory(SubName);
+            if (Duplicate != null) return Duplicate;
 
             FtpDirectory NewDir = new FtpDirectory(this, SubName);
             Subdirectories.Add(NewDir);
@@ -48,7 +48,19 @@ namespace FtpClient
         public string PathString()
         {
             if (IsRoot) return "/";
-            return OwnerDir.ToString() + DirName + "/";
+            return OwnerDir.PathString() + DirName + "/";
+        }
+
+        public FtpDirectory GetSubdirectory(string SubName)
+        {
+            foreach (FtpDirectory Subdir in Subdirectories)
+                if (Subdir.DirName.Equals(SubName)) return Subdir;
+            return null;
+        }
+
+        internal FtpDirectory GetParentDir()
+        {
+            return OwnerDir;
         }
     }
 

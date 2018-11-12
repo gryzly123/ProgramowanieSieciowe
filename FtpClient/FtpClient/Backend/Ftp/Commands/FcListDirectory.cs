@@ -60,6 +60,8 @@ namespace FtpClient
 
             List<byte> Data;
             DataConnection.StopRawDataRead(out Data);
+            DataConnection.CloseConnection();
+            
             string DirectoryListing = Encoding.ASCII.GetString(Data.ToArray());
 
             string[] Lines = DirectoryListing.Split(new string[] { EOL }, StringSplitOptions.RemoveEmptyEntries);

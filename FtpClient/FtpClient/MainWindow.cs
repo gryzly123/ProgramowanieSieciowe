@@ -15,6 +15,7 @@ namespace FtpClient
         {
             InitializeComponent();
             SetupConfig();
+            MarkInterfaceBusy(true);
         }
         private void SetupConfig()
         {
@@ -142,32 +143,48 @@ namespace FtpClient
         #region FTP event handling - authorize
         private void OnFtpUserLoggedIn(bool Success)
         {
-            FcModeToggle PasvCmd = new FcModeToggle();
-            Service.PushNewCommand(PasvCmd);
-
             CurrentDir = new FtpDirectory();
-            FcChangeDirectory Cmd = new FcChangeDirectory(CurrentDir, CurrentDir);
+            RequestChangeDirectory(CurrentDir);
+        }
+
+        private void MarkInterfaceBusy(bool NewBusy)
+        {
+            ButtonGoUp.Enabled = !NewBusy;
+            ButtonScanRecursive.Enabled = !NewBusy;
+            ListboxDirContents.Enabled = !NewBusy;
+        }
+
+        private void RequestChangeDirectory(FtpDirectory NewDir)
+        {
+            MarkInterfaceBusy(true);
+            FcChangeDirectory Cmd = new FcChangeDirectory(CurrentDir, NewDir);
             Cmd.OnDirectoryChanged += OnFtpDirectoryChanged;
             Service.PushNewCommand(Cmd);
         }
-
         private void OnFtpDirectoryChanged(bool Success, FtpDirectory Dir)
         {
-            if (!Success)
+            Invoke(new Action(() =>
             {
-                Invoke(new Action(() =>
-                {
+                if (!Success)
                     MessageBox.Show("Could not change to a new directory, keeping current");
-                }));
-                return;
-            }
+                else
+                {
+                    LabelCurrentPath.Text = Dir.PathString();
+                }
+            }));
 
             CurrentDir = Dir;
-            FcListDirectory Cmd = new FcListDirectory(Dir);
+            RequestListDirectory(CurrentDir);
+        }
+        private void RequestListDirectory(FtpDirectory NewDir)
+        {
+            FcModeToggle PasvCmd = new FcModeToggle();
+            Service.PushNewCommand(PasvCmd);
+
+            FcListDirectory Cmd = new FcListDirectory(NewDir);
             Cmd.OnDirectoryListed += OnFtpDirectoryListed;
             Service.PushNewCommand(Cmd);
         }
-
         private void OnFtpDirectoryListed(bool Success, FtpDirectory Dir)
         {
             if (!Success)
@@ -181,7 +198,14 @@ namespace FtpClient
 
             Invoke(new Action(() =>
             {
-                MessageBox.Show("Listing in form not implemented");
+                ListboxDirContents.Items.Clear();
+                foreach (FtpDirectory Sub in Dir.Subdirectories)
+                    ListboxDirContents.Items.Add(Sub.DirName + "/");
+
+                foreach (FtpFile File in Dir.Files)
+                    ListboxDirContents.Items.Add(File.FileName);
+
+                MarkInterfaceBusy(false);
             }));
         }
 
@@ -191,5 +215,36 @@ namespace FtpClient
             DisableService();
         }
         #endregion
+
+        private void ListboxDirContents_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            int Idx = ListboxDirContents.SelectedIndex;
+            if (Idx < 0) return;
+
+            string Target = (string)ListboxDirContents.Items[Idx];
+            bool IsDir = Target.EndsWith("/");
+
+            if(IsDir)
+            {
+                FtpDirectory NewDir = CurrentDir.GetSubdirectory(Target.Substring(0, Target.Length - 1));
+                if(NewDir == null)
+                {
+                    MessageBox.Show("Internal error: selected directory doesn't exist in memory");
+                    return;
+                }
+                RequestChangeDirectory(NewDir);
+            }
+        }
+
+        private void ButtonGoUp_Click(object sender, EventArgs e)
+        {
+            FtpDirectory Parent = CurrentDir.GetParentDir();
+            if (Parent != null) RequestChangeDirectory(Parent);
+        }
+
+        private void ButtonScanRecursive_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show("Internal error: not implemented");
+        }
     }
 }
