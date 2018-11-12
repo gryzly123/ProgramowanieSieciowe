@@ -42,19 +42,7 @@
             this.label3 = new System.Windows.Forms.Label();
             this.InFtpPort = new System.Windows.Forms.TextBox();
             this.label2 = new System.Windows.Forms.Label();
-            this.GroupSmtp = new System.Windows.Forms.GroupBox();
-            this.CheckSmtpSsl = new System.Windows.Forms.CheckBox();
-            this.label7 = new System.Windows.Forms.Label();
-            this.InSmtpPassword = new System.Windows.Forms.TextBox();
-            this.label9 = new System.Windows.Forms.Label();
-            this.InSmtpLogin = new System.Windows.Forms.TextBox();
-            this.label10 = new System.Windows.Forms.Label();
-            this.InSmtpPort = new System.Windows.Forms.TextBox();
-            this.label11 = new System.Windows.Forms.Label();
-            this.InSmtpHostname = new System.Windows.Forms.TextBox();
-            this.label12 = new System.Windows.Forms.Label();
             this.GroupFtp.SuspendLayout();
-            this.GroupSmtp.SuspendLayout();
             this.SuspendLayout();
             // 
             // label1
@@ -68,7 +56,7 @@
             // 
             // ButtonAccept
             // 
-            this.ButtonAccept.Location = new System.Drawing.Point(365, 208);
+            this.ButtonAccept.Location = new System.Drawing.Point(148, 208);
             this.ButtonAccept.Name = "ButtonAccept";
             this.ButtonAccept.Size = new System.Drawing.Size(75, 23);
             this.ButtonAccept.TabIndex = 1;
@@ -192,119 +180,12 @@
             this.label2.TabIndex = 3;
             this.label2.Text = "Port";
             // 
-            // GroupSmtp
-            // 
-            this.GroupSmtp.Controls.Add(this.CheckSmtpSsl);
-            this.GroupSmtp.Controls.Add(this.label7);
-            this.GroupSmtp.Controls.Add(this.InSmtpPassword);
-            this.GroupSmtp.Controls.Add(this.label9);
-            this.GroupSmtp.Controls.Add(this.InSmtpLogin);
-            this.GroupSmtp.Controls.Add(this.label10);
-            this.GroupSmtp.Controls.Add(this.InSmtpPort);
-            this.GroupSmtp.Controls.Add(this.label11);
-            this.GroupSmtp.Controls.Add(this.InSmtpHostname);
-            this.GroupSmtp.Controls.Add(this.label12);
-            this.GroupSmtp.Location = new System.Drawing.Point(229, 12);
-            this.GroupSmtp.Name = "GroupSmtp";
-            this.GroupSmtp.Size = new System.Drawing.Size(211, 190);
-            this.GroupSmtp.TabIndex = 13;
-            this.GroupSmtp.TabStop = false;
-            this.GroupSmtp.Text = "SMTP";
-            // 
-            // CheckSmtpSsl
-            // 
-            this.CheckSmtpSsl.AutoSize = true;
-            this.CheckSmtpSsl.Location = new System.Drawing.Point(94, 155);
-            this.CheckSmtpSsl.Name = "CheckSmtpSsl";
-            this.CheckSmtpSsl.Size = new System.Drawing.Size(15, 14);
-            this.CheckSmtpSsl.TabIndex = 12;
-            this.CheckSmtpSsl.UseVisualStyleBackColor = true;
-            this.CheckSmtpSsl.CheckedChanged += new System.EventHandler(this.CheckSmtpSsl_CheckedChanged);
-            // 
-            // label7
-            // 
-            this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(6, 156);
-            this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(49, 13);
-            this.label7.TabIndex = 11;
-            this.label7.Text = "Use SSL";
-            // 
-            // InSmtpPassword
-            // 
-            this.InSmtpPassword.Location = new System.Drawing.Point(94, 101);
-            this.InSmtpPassword.Name = "InSmtpPassword";
-            this.InSmtpPassword.Size = new System.Drawing.Size(100, 20);
-            this.InSmtpPassword.TabIndex = 8;
-            this.InSmtpPassword.TextChanged += new System.EventHandler(this.InSmtpPassword_TextChanged);
-            // 
-            // label9
-            // 
-            this.label9.AutoSize = true;
-            this.label9.Location = new System.Drawing.Point(6, 104);
-            this.label9.Name = "label9";
-            this.label9.Size = new System.Drawing.Size(53, 13);
-            this.label9.TabIndex = 7;
-            this.label9.Text = "Password";
-            // 
-            // InSmtpLogin
-            // 
-            this.InSmtpLogin.Location = new System.Drawing.Point(94, 75);
-            this.InSmtpLogin.Name = "InSmtpLogin";
-            this.InSmtpLogin.Size = new System.Drawing.Size(100, 20);
-            this.InSmtpLogin.TabIndex = 6;
-            this.InSmtpLogin.TextChanged += new System.EventHandler(this.InSmtpLogin_TextChanged);
-            // 
-            // label10
-            // 
-            this.label10.AutoSize = true;
-            this.label10.Location = new System.Drawing.Point(6, 78);
-            this.label10.Name = "label10";
-            this.label10.Size = new System.Drawing.Size(55, 13);
-            this.label10.TabIndex = 5;
-            this.label10.Text = "Username";
-            // 
-            // InSmtpPort
-            // 
-            this.InSmtpPort.Location = new System.Drawing.Point(94, 49);
-            this.InSmtpPort.Name = "InSmtpPort";
-            this.InSmtpPort.Size = new System.Drawing.Size(100, 20);
-            this.InSmtpPort.TabIndex = 4;
-            this.InSmtpPort.TextChanged += new System.EventHandler(this.InSmtpPort_TextChanged);
-            // 
-            // label11
-            // 
-            this.label11.AutoSize = true;
-            this.label11.Location = new System.Drawing.Point(6, 52);
-            this.label11.Name = "label11";
-            this.label11.Size = new System.Drawing.Size(26, 13);
-            this.label11.TabIndex = 3;
-            this.label11.Text = "Port";
-            // 
-            // InSmtpHostname
-            // 
-            this.InSmtpHostname.Location = new System.Drawing.Point(94, 23);
-            this.InSmtpHostname.Name = "InSmtpHostname";
-            this.InSmtpHostname.Size = new System.Drawing.Size(100, 20);
-            this.InSmtpHostname.TabIndex = 2;
-            this.InSmtpHostname.TextChanged += new System.EventHandler(this.InSmtpHostname_TextChanged);
-            // 
-            // label12
-            // 
-            this.label12.AutoSize = true;
-            this.label12.Location = new System.Drawing.Point(6, 26);
-            this.label12.Name = "label12";
-            this.label12.Size = new System.Drawing.Size(55, 13);
-            this.label12.TabIndex = 0;
-            this.label12.Text = "Hostname";
-            // 
             // Configuration
             // 
             this.AcceptButton = this.ButtonAccept;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(450, 241);
-            this.Controls.Add(this.GroupSmtp);
+            this.ClientSize = new System.Drawing.Size(235, 241);
             this.Controls.Add(this.GroupFtp);
             this.Controls.Add(this.ButtonAccept);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
@@ -312,8 +193,6 @@
             this.Text = "Setup";
             this.GroupFtp.ResumeLayout(false);
             this.GroupFtp.PerformLayout();
-            this.GroupSmtp.ResumeLayout(false);
-            this.GroupSmtp.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -334,16 +213,5 @@
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.CheckBox CheckFtpSsl;
         private System.Windows.Forms.Label label6;
-        private System.Windows.Forms.GroupBox GroupSmtp;
-        private System.Windows.Forms.TextBox InSmtpPassword;
-        private System.Windows.Forms.Label label9;
-        private System.Windows.Forms.TextBox InSmtpLogin;
-        private System.Windows.Forms.Label label10;
-        private System.Windows.Forms.TextBox InSmtpPort;
-        private System.Windows.Forms.Label label11;
-        private System.Windows.Forms.TextBox InSmtpHostname;
-        private System.Windows.Forms.Label label12;
-        private System.Windows.Forms.CheckBox CheckSmtpSsl;
-        private System.Windows.Forms.Label label7;
     }
 }

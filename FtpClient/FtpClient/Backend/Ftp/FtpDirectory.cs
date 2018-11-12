@@ -74,5 +74,10 @@ namespace FtpClient
             OwnerDir = Owner ?? throw new Exception();
             FileName = Name;
         }
+
+        internal FtpDirectory GetDirectory()
+        {
+            return OwnerDir;
+        }
     }
 }

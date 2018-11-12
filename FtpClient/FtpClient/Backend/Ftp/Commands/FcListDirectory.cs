@@ -9,6 +9,7 @@ namespace FtpClient
     public class FcListDirectory : FtpCommand
     {
         private bool CommandSent = false;
+        private bool TransferStarted = false;
         private bool TransferEnded = false;
         private FtpDirectory CurrentDir;
         public DirectoryEvent OnDirectoryListed;
@@ -24,6 +25,11 @@ namespace FtpClient
         internal override string BuildVerb()
         {
             CommandSent = true;
+
+            DataConnection = new NetConnection();
+            DataConnection.StartConnection(ParentService.DataConfig);
+            DataConnection.StartRawDataRead();
+
             return string.Format
                 ("LIST {0}{1}",
                 CurrentDir.PathString(),
@@ -33,32 +39,23 @@ namespace FtpClient
 
         internal override bool ParseResponse(string Response)
         {
-            //Komenda 1 - rozpoczęcie
-            if (DataConnection == null)
+            if (!TransferStarted)
             {
                 if (!Response.StartsWith("150"))
                 {
                     TransferEnded = true;
-                    OnDirectoryListed(false, CurrentDir);
+                    OnDirectoryListed(false, CurrentDir); 
+                    DataConnection.CloseConnection();
                     return true;
                 }
-
-                DataConnection = new NetConnection();
-                DataConnection.StartConnection(ParentService.DataConfig);
-                DataConnection.StartRawDataRead();
-                return true;
+                TransferStarted = true;
             }
 
-            //Komenda 2 - zakończenie
-            TransferEnded = true;
-
-            if (!Response.StartsWith("226"))
-            {
-                OnDirectoryListed(false, null);
-                return true;
-            }
+            if (Response.Contains("226")) TransferEnded = true;
+            if (!TransferEnded) return true;
 
             List<byte> Data;
+            System.Threading.Thread.Sleep(50);
             DataConnection.StopRawDataRead(out Data);
             DataConnection.CloseConnection();
             
@@ -73,7 +70,6 @@ namespace FtpClient
                 else CurrentDir.AddFile(Params[3]);
             }
             OnDirectoryListed(true, CurrentDir);
-
             return true;
         }
 

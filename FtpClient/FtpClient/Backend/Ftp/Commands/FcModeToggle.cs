@@ -6,7 +6,7 @@ namespace FtpClient
     public class FcModeToggle : FtpCommand
     {
         bool Success = false;
-        Int16 TargetPort;
+        UInt16 TargetPort;
         string TargetHost;
 
         internal FtpService.Mode NewMode = FtpService.Mode.PassiveV6;
@@ -50,7 +50,7 @@ namespace FtpClient
 
                     case FtpService.Mode.PassiveV6:
                         string Port = IpData.Split(new char[] { '|' }, StringSplitOptions.None)[3];
-                        if (!Int16.TryParse(Port, out TargetPort)) return false;
+                        if (!UInt16.TryParse(Port, out TargetPort)) return false;
                         TargetHost = ParentService.GetConfig().Hostname;
                         break;
                 }

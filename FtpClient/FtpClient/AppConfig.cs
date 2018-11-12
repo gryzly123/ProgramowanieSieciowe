@@ -29,7 +29,7 @@ namespace FtpClient
 
         private void InPort_TextChanged(object sender, EventArgs e)
         {
-            if (!Int16.TryParse(InFtpPort.Text, out TempFtpSettings.Port))
+            if (!UInt16.TryParse(InFtpPort.Text, out TempFtpSettings.Port))
                 InFtpPort.Text = TempFtpSettings.GetDefaultPort().ToString();
         }
 

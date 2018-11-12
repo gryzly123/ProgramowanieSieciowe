@@ -46,9 +46,14 @@ namespace FtpClient
             switch(AuthState)
             {
                 case AuthorizationState.SentLogin:
-                    Success = Response.StartsWith("331");
-                    AuthState = Success ? AuthorizationState.AcceptedLogin : AuthorizationState.Failed;
-                    return Success;
+                    if (Response.StartsWith("331")) AuthState = AuthorizationState.AcceptedLogin;
+                    else if (Response.StartsWith("230"))
+                    {
+                        AuthState = AuthorizationState.AcceptedPassword;
+                        OnUserLogin(true);
+                    }
+                    else AuthState = AuthorizationState.Failed;
+                    return (AuthState != AuthorizationState.Failed);
             
                 case AuthorizationState.SentPassword:
                     Success = Response.StartsWith("230");

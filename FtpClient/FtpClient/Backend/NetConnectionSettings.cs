@@ -6,7 +6,7 @@ namespace FtpClient
     public abstract class NetConnectionSettings
     {
         public string Hostname;
-        public Int16 Port;
+        public UInt16 Port;
         public string UserLogin;
         public string UserPassword;
         public bool UseSsl;
@@ -18,7 +18,7 @@ namespace FtpClient
             Port = 25;
             UserLogin = "";
             UserPassword = "";
-            UseSsl = true;
+            UseSsl = false;
         }
 
         public abstract Int16 GetDefaultPort();
@@ -62,7 +62,7 @@ namespace FtpClient
                             break;
 
                         case "port":
-                            Int16.TryParse(Reader.GetAttribute(0), out Port);
+                            UInt16.TryParse(Reader.GetAttribute(0), out Port);
                             hasPort = true;
                             break;
 

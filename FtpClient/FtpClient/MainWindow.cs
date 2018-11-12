@@ -242,9 +242,61 @@ namespace FtpClient
             if (Parent != null) RequestChangeDirectory(Parent);
         }
 
+        private int CommandsLeft = 0;
+        private FtpDirectory RecursiveTree;
+
         private void ButtonScanRecursive_Click(object sender, EventArgs e)
         {
-            MessageBox.Show("Internal error: not implemented");
+            MarkInterfaceBusy(true);
+            //FcChangeDirectory Dir = new FcChangeDirectory(CurrentDir, new FtpDirectory());
+            //Dir.OnDirectoryChanged += RecursiveOnDirectoryChanged;
+            //Service.PushNewCommand(Dir);
+
+            ++CommandsLeft;
+            Service.PushNewCommand(new FcModeToggle());
+            RecursiveTree = new FtpDirectory();
+            FcListDirectory Dir = new FcListDirectory(RecursiveTree);
+            Dir.OnDirectoryListed += RecursiveOnDirectoryListed;
+            Service.PushNewCommand(Dir);
+        }
+
+        private void RecursiveOnDirectoryChanged(bool Success, FtpDirectory Directory)
+        {
+            
+        }
+
+        private void RecursiveOnDirectoryListed(bool Success, FtpDirectory Directory)
+        {
+            --CommandsLeft;
+
+            foreach (FtpDirectory Subdir in Directory.Subdirectories)
+            {
+                ++CommandsLeft;
+                Service.PushNewCommand(new FcModeToggle());
+                FcListDirectory Dir = new FcListDirectory(Subdir);
+                Dir.OnDirectoryListed += RecursiveOnDirectoryListed;
+                Service.PushNewCommand(Dir);
+            }
+
+            if(CommandsLeft == 0)
+            {
+                Invoke(new Action(() =>
+                {
+                    RecursivePrintDirectory(RecursiveTree);
+                }));
+            }
+        }
+
+        private void RecursivePrintDirectory(FtpDirectory Directory)
+        {
+            ListboxDirContents.Items.Clear();
+            //ListboxDirContents.Items.Add(Directory.PathString() + "/");
+            foreach(FtpDirectory Subdir in Directory.Subdirectories)
+                RecursivePrintDirectory(Subdir);
+            foreach(FtpFile File in Directory.Files)
+                ListboxDirContents.Items.Add(File.GetDirectory().PathString() + File.FileName);
+
+            MarkInterfaceBusy(false);
         }
     }
 }
