@@ -6,7 +6,7 @@ namespace MailClient
     public abstract class NetConnectionSettings
     {
         public string Hostname;
-        public Int16 Port;
+        public UInt16 Port;
         public string UserLogin;
         public string UserPassword;
         public bool UseSsl;
@@ -15,13 +15,14 @@ namespace MailClient
         public NetConnectionSettings()
         {
             Hostname = "127.0.0.1";
-            Port = 25;
+            Port = GetDefaultPort();
             UserLogin = "";
             UserPassword = "";
             UseSsl = true;
         }
 
-        public abstract Int16 GetDefaultPort();
+        public abstract UInt16 GetDefaultPort();
+        public abstract void CloneChildData(NetConnectionSettings InSettings);
         public abstract void ReadAdditionalVerbs(string XmlName, string XmlValue);
         public abstract void WriteAdditionalVerbs(XmlTextWriter Writer);
 
@@ -32,6 +33,7 @@ namespace MailClient
             UserLogin          = In.UserLogin;
             UserPassword       = In.UserPassword;
             UseSsl             = In.UseSsl;
+            CloneChildData(In);
         }
 
         //parsowanie ustawień z pliku (App.config)
@@ -62,7 +64,7 @@ namespace MailClient
                             break;
 
                         case "port":
-                            Int16.TryParse(Reader.GetAttribute(0), out Port);
+                            UInt16.TryParse(Reader.GetAttribute(0), out Port);
                             hasPort = true;
                             break;
 

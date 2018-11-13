@@ -41,7 +41,7 @@ namespace MailClient
 
         private void InPort_TextChanged(object sender, EventArgs e)
         {
-            if (!Int16.TryParse(InPopPort.Text, out TempPopSettings.Port))
+            if (!UInt16.TryParse(InPopPort.Text, out TempPopSettings.Port))
                 InPopPort.Text = TempPopSettings.GetDefaultPort().ToString();
         }
 
@@ -70,7 +70,7 @@ namespace MailClient
 
         private void InSmtpPort_TextChanged(object sender, EventArgs e)
         {
-            if (!Int16.TryParse(InSmtpPort.Text, out TempSmtpSettings.Port))
+            if (!UInt16.TryParse(InSmtpPort.Text, out TempSmtpSettings.Port))
                 InSmtpPort.Text = TempSmtpSettings.GetDefaultPort().ToString();
         }
 

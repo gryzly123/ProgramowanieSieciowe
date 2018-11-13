@@ -1,1 +1,1 @@
-<?xml version="1.0" encoding="us-ascii"?><appcfg><hostname value="pop3.wp.pl" /><port value="995" /><username value="ps45575" /><password value="ps45575ps45575" /><ssl value="True" /><refrate value="5" /></appcfg>
+<?xml version="1.0" encoding="us-ascii"?><appcfg><hostname value="pop3.wp.pl" /><port value="995" /><username value="ps45575" /><password value="ps45575ps45575" /><ssl value="True" /><refrate value="10" /></appcfg>
