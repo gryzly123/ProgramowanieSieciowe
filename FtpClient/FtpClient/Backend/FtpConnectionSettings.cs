@@ -12,7 +12,7 @@ namespace FtpClient
             UnixListing = ((FtpConnectionSettings)InSettings).UnixListing;
         }
 
-        public override Int16 GetDefaultPort() { return 21; }
+        public override UInt16 GetDefaultPort() { return 21; }
         public override void ReadAdditionalVerbs(string XmlName, string XmlValue) { if (XmlName.Equals("unixlisting") && XmlValue.Equals("True")) UnixListing = true; }
         public override void WriteAdditionalVerbs(XmlTextWriter Writer)
         {

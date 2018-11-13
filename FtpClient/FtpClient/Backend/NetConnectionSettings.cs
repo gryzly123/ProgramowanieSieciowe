@@ -15,13 +15,13 @@ namespace FtpClient
         public NetConnectionSettings()
         {
             Hostname = "127.0.0.1";
-            Port = 25;
+            Port = GetDefaultPort();
             UserLogin = "";
             UserPassword = "";
             UseSsl = false;
         }
 
-        public abstract Int16 GetDefaultPort();
+        public abstract UInt16 GetDefaultPort();
         public abstract void CloneChildData(NetConnectionSettings InSettings);
         public abstract void ReadAdditionalVerbs(string XmlName, string XmlValue);
         public abstract void WriteAdditionalVerbs(XmlTextWriter Writer);

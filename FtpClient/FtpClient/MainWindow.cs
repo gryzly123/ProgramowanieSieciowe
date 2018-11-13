@@ -46,6 +46,7 @@ namespace FtpClient
                 Service.RequestStopService();
                 ButtonConnectFtp.Text = "Start client";
                 ButtonConfig.Enabled = true;
+                MarkInterfaceBusy(true);
             }));
         }
 
@@ -120,14 +121,14 @@ namespace FtpClient
                     ButtonConfig.Enabled = true;
                 }
 
-                ButtonConnectFtp.Text = CleanShutdown
-                ? "Waiting..."
-                : "Start client";
+                ButtonConnectFtp.Text = "Start client";
 
                 ListboxLog.Items.Add(CleanShutdown
                     ? "-- connection ended --"
                     : "-- connection failed --");
                 ListboxLog.SelectedIndex = ListboxLog.Items.Count - 1;
+
+                Service = null;
             }));
         }
         private void ParseDebugMessage(bool IsIncoming, string Message)
@@ -156,7 +157,7 @@ namespace FtpClient
 
         private void RequestChangeDirectory(FtpDirectory NewDir)
         {
-            MarkInterfaceBusy(true);
+            Invoke(new Action(() => { MarkInterfaceBusy(true); }));
             FcChangeDirectory Cmd = new FcChangeDirectory(CurrentDir, NewDir);
             Cmd.OnDirectoryChanged += OnFtpDirectoryChanged;
             Service.PushNewCommand(Cmd);
@@ -254,9 +255,7 @@ namespace FtpClient
         private void ButtonScanRecursive_Click(object sender, EventArgs e)
         {
             MarkInterfaceBusy(true);
-            //FcChangeDirectory Dir = new FcChangeDirectory(CurrentDir, new FtpDirectory());
-            //Dir.OnDirectoryChanged += RecursiveOnDirectoryChanged;
-            //Service.PushNewCommand(Dir);
+            CommandsLeft = 0;
 
             ++CommandsLeft;
             Service.PushNewCommand(new FcRequestDynamicPort());
