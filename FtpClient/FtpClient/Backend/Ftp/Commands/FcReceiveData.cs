@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace FtpClient
+﻿namespace FtpClient
 {
     public class FcReceiveData : FtpCommand
     {

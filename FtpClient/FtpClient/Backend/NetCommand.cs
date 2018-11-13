@@ -15,11 +15,6 @@
 
     public abstract class FtpCommand : NetCommand
     {
-        //protected const string OK = "+OK";
-        //protected const string ERROR = "-ERR";
-        //internal const string MultilineTerminator = "\r\n.\r\n";
-        //internal const string Whitespace = " ";
-
         protected FtpService ParentService;
         internal void SetFtpService(FtpService InService) { ParentService = InService; }
         internal override bool IsMultilineTerminated(string Msg)

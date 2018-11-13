@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Windows.Forms;
 
 namespace FtpClient
@@ -32,13 +31,74 @@ namespace FtpClient
             else
                 EnableService();
         }
+        private void ButtonConfig_Click(object sender, EventArgs e)
+        {
+            new Configuration(FtpConfig).ShowDialog();
+            FtpConfig.SaveConfig(ConfigFilenameFtp);
+        }
+        private void ButtonGoUp_Click(object sender, EventArgs e)
+        {
+            FtpDirectory Parent = CurrentDir.GetParentDir();
+            if (Parent != null) RequestChangeDirectory(Parent);
+        }
+        private void ButtonScanRecursive_Click(object sender, EventArgs e)
+        {
+            MarkInterfaceBusy(true);
+            CommandsLeft = 0;
 
+            ++CommandsLeft;
+            Service.PushNewCommand(new FcRequestDynamicPort());
+            RecursiveTree = new FtpDirectory();
+            FcListDirectory Dir = new FcListDirectory(RecursiveTree);
+            Dir.OnDirectoryListed += RecursiveOnDirectoryListed;
+            Service.PushNewCommand(Dir);
+        }
+        private void ListboxDirContents_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            int Idx = ListboxDirContents.SelectedIndex;
+            if (Idx < 0) return;
+
+            string Target = (string)ListboxDirContents.Items[Idx];
+            bool IsDir = Target.EndsWith("/");
+
+            if(IsDir)
+            {
+                string[] AbsPath = Target.Split(new char[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
+
+                FtpDirectory NewDir = CurrentDir;
+                for (int i = 0; i < AbsPath.Length; ++i)
+                {
+                    NewDir = NewDir.GetSubdirectory(AbsPath[i]);
+                    if (NewDir == null)
+                    {
+                        MessageBox.Show("Internal error: selected directory doesn't exist in memory");
+                        return;
+                    }
+                }
+                RequestChangeDirectory(NewDir);
+            }
+        }
+        private void MainWindow_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            if(Service != null) Service.RequestStopService();
+
+            if(!FtpConfig.SaveConfig(ConfigFilenameFtp))
+                MessageBox.Show("Could not save your FTP config (most likely due\nto permission issues).");
+        }
+        private void MarkInterfaceBusy(bool NewBusy)
+        {
+            ButtonGoUp.Enabled = !NewBusy;
+            ButtonScanRecursive.Enabled = !NewBusy;
+            ListboxDirContents.Enabled = !NewBusy;
+        }
+        #endregion
+
+        #region FTP connection
         private void EnableService()
         {
             ButtonConfig.Enabled = false;
             StartConnection();
         }
-
         private void DisableService()
         {
             Invoke(new Action(() =>
@@ -49,22 +109,6 @@ namespace FtpClient
                 MarkInterfaceBusy(true);
             }));
         }
-
-        private void ButtonConfig_Click(object sender, EventArgs e)
-        {
-            new Configuration(FtpConfig).ShowDialog();
-            FtpConfig.SaveConfig(ConfigFilenameFtp);
-        }
-        private void MainWindow_FormClosed(object sender, FormClosedEventArgs e)
-        {
-            if(Service != null) Service.RequestStopService();
-
-            if(!FtpConfig.SaveConfig(ConfigFilenameFtp))
-                MessageBox.Show("Could not save your FTP config (most likely due\nto permission issues).");
-        }
-        #endregion
-
-        #region FTP connection
         private bool StartConnection()
         {
             if (Service == null)
@@ -103,14 +147,6 @@ namespace FtpClient
             HsCmd.OnHandshakeReceived += OnHandshakeReceived;
             Service.PushNewCommand(HsCmd);
         }
-
-        private void OnHandshakeReceived()
-        {
-            FcAuthorize AuthCmd = new FcAuthorize();
-            AuthCmd.OnUserLogin += OnFtpUserLoggedIn;
-            Service.PushNewCommand(AuthCmd);
-        }
-
         private void OnFtpConnectionClosed(bool CleanShutdown)
         {
             ButtonConnectFtp.Invoke(new Action(() =>
@@ -131,6 +167,12 @@ namespace FtpClient
                 Service = null;
             }));
         }
+        private void OnHandshakeReceived()
+        {
+            FcAuthorize AuthCmd = new FcAuthorize();
+            AuthCmd.OnUserLogin += OnFtpUserLoggedIn;
+            Service.PushNewCommand(AuthCmd);
+        }
         private void ParseDebugMessage(bool IsIncoming, string Message)
         {
             ListboxLog.Invoke(new Action(() =>
@@ -140,21 +182,21 @@ namespace FtpClient
             }));
         }
         #endregion
-       
-        #region FTP event handling - authorize
+
+        #region FTP event handling - authorization, directory browser
         private void OnFtpUserLoggedIn(bool Success)
         {
-            CurrentDir = new FtpDirectory();
-            RequestChangeDirectory(CurrentDir);
+            if (Success)
+            {
+                CurrentDir = new FtpDirectory();
+                RequestChangeDirectory(CurrentDir);
+            }
+            else
+            {
+                MessageBox.Show("Connection succeeded but login failed.\nCheck your credentials.");
+                DisableService();
+            }
         }
-
-        private void MarkInterfaceBusy(bool NewBusy)
-        {
-            ButtonGoUp.Enabled = !NewBusy;
-            ButtonScanRecursive.Enabled = !NewBusy;
-            ListboxDirContents.Enabled = !NewBusy;
-        }
-
         private void RequestChangeDirectory(FtpDirectory NewDir)
         {
             Invoke(new Action(() => { MarkInterfaceBusy(true); }));
@@ -209,62 +251,11 @@ namespace FtpClient
                 MarkInterfaceBusy(false);
             }));
         }
-
-        private void OnFtpUserFailedToAuth()
-        {
-            MessageBox.Show("Connection succeeded but login failed.\nCheck your credentials.");
-            DisableService();
-        }
         #endregion
 
-        private void ListboxDirContents_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            int Idx = ListboxDirContents.SelectedIndex;
-            if (Idx < 0) return;
-
-            string Target = (string)ListboxDirContents.Items[Idx];
-            bool IsDir = Target.EndsWith("/");
-
-            if(IsDir)
-            {
-                string[] AbsPath = Target.Split(new char[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
-
-                FtpDirectory NewDir = CurrentDir;
-                for (int i = 0; i < AbsPath.Length; ++i)
-                {
-                    NewDir = NewDir.GetSubdirectory(AbsPath[i]);
-                    if (NewDir == null)
-                    {
-                        MessageBox.Show("Internal error: selected directory doesn't exist in memory");
-                        return;
-                    }
-                }
-                RequestChangeDirectory(NewDir);
-            }
-        }
-
-        private void ButtonGoUp_Click(object sender, EventArgs e)
-        {
-            FtpDirectory Parent = CurrentDir.GetParentDir();
-            if (Parent != null) RequestChangeDirectory(Parent);
-        }
-
+        #region FTP event handling - recursive directory tree
         private int CommandsLeft = 0;
         private FtpDirectory RecursiveTree;
-
-        private void ButtonScanRecursive_Click(object sender, EventArgs e)
-        {
-            MarkInterfaceBusy(true);
-            CommandsLeft = 0;
-
-            ++CommandsLeft;
-            Service.PushNewCommand(new FcRequestDynamicPort());
-            RecursiveTree = new FtpDirectory();
-            FcListDirectory Dir = new FcListDirectory(RecursiveTree);
-            Dir.OnDirectoryListed += RecursiveOnDirectoryListed;
-            Service.PushNewCommand(Dir);
-        }
-
         private void RecursiveOnDirectoryListed(bool Success, FtpDirectory Directory)
         {
             --CommandsLeft;
@@ -288,7 +279,6 @@ namespace FtpClient
                 }));
             }
         }
-
         private void RecursivePrintDirectory(FtpDirectory Directory)
         {
             foreach(FtpDirectory Subdir in Directory.Subdirectories)
@@ -299,5 +289,6 @@ namespace FtpClient
 
             MarkInterfaceBusy(false);
         }
+        #endregion
     }
 }

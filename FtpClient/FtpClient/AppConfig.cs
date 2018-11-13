@@ -10,7 +10,7 @@ namespace FtpClient
         {
             InitializeComponent();
 
-            this.InFtpSrettings = InFtp;
+            InFtpSrettings = InFtp;
 
             TempFtpSettings = new FtpConnectionSettings();
             TempFtpSettings.CloneFrom(InFtp);

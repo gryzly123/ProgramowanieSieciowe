@@ -3,7 +3,6 @@ using System.Text;
 using System.Net.Sockets;
 using System.Net.Security;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Threading;
 
 namespace FtpClient
