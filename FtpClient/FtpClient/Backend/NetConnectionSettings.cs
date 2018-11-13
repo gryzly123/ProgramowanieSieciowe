@@ -22,6 +22,7 @@ namespace FtpClient
         }
 
         public abstract Int16 GetDefaultPort();
+        public abstract void CloneChildData(NetConnectionSettings InSettings);
         public abstract void ReadAdditionalVerbs(string XmlName, string XmlValue);
         public abstract void WriteAdditionalVerbs(XmlTextWriter Writer);
 
@@ -32,6 +33,7 @@ namespace FtpClient
             UserLogin          = In.UserLogin;
             UserPassword       = In.UserPassword;
             UseSsl             = In.UseSsl;
+            CloneChildData(In);
         }
 
         //parsowanie ustawień z pliku (App.config)

@@ -20,6 +20,7 @@ namespace FtpClient
             InFtpUsername.Text  = TempFtpSettings.UserLogin;
             InFtpPassword.Text  = TempFtpSettings.UserPassword;
             CheckFtpSsl.Checked = TempFtpSettings.UseSsl;
+            EnableUnixListing.Value = TempFtpSettings.UnixListing ? 1 : 0;
         }
 
         private void InHostname_TextChanged(object sender, EventArgs e)
@@ -43,33 +44,14 @@ namespace FtpClient
             TempFtpSettings.UserPassword = InFtpPassword.Text;
         }
 
-        private void InRefrate_TextChanged(object sender, EventArgs e)
-        {
-        }
-
-        private void InSmtpHostname_TextChanged(object sender, EventArgs e)
-        {
-        }
-
-        private void InSmtpPort_TextChanged(object sender, EventArgs e)
-        {
-        }
-
-        private void InSmtpLogin_TextChanged(object sender, EventArgs e)
-        {
-        }
-
-        private void InSmtpPassword_TextChanged(object sender, EventArgs e)
-        {
-        }
-
-        private void CheckSmtpSsl_CheckedChanged(object sender, EventArgs e)
-        {
-        }
-
         private void ChecFtpSsl_CheckedChanged(object sender, EventArgs e)
         {
             TempFtpSettings.UseSsl = CheckFtpSsl.Checked;
+        }
+
+        private void EnableUnixListing_Scroll(object sender, EventArgs e)
+        {
+            TempFtpSettings.UnixListing = (EnableUnixListing.Value == 1) ? true : false;
         }
 
         private void ButtonAccept_Click(object sender, EventArgs e)

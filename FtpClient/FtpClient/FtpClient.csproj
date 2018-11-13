@@ -48,7 +48,7 @@
   <ItemGroup>
     <Compile Include="Backend\FtpService.cs" />
     <Compile Include="Backend\Ftp\Commands\FcReceiveData.cs" />
-    <Compile Include="Backend\Ftp\Commands\FcModeToggle.cs" />
+    <Compile Include="Backend\Ftp\Commands\FcRequestDynamicPort.cs" />
     <Compile Include="Backend\Ftp\Commands\FcHandshake.cs" />
     <Compile Include="Backend\Ftp\FtpDirectory.cs" />
     <Compile Include="MainWindow.cs">

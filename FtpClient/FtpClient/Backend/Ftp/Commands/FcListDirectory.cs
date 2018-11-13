@@ -11,6 +11,7 @@ namespace FtpClient
         private bool CommandSent = false;
         private bool TransferStarted = false;
         private bool TransferEnded = false;
+        private bool ParseUnixListing = false;
         private FtpDirectory CurrentDir;
         public DirectoryEvent OnDirectoryListed;
         NetConnection DataConnection;
@@ -25,10 +26,14 @@ namespace FtpClient
         internal override string BuildVerb()
         {
             CommandSent = true;
-
+            ParseUnixListing = ParentService.GetConfig().UnixListing;
             DataConnection = new NetConnection();
-            DataConnection.StartConnection(ParentService.DataConfig);
-            DataConnection.StartRawDataRead();
+
+            if (ParseUnixListing)
+            {
+                DataConnection.StartConnection(ParentService.DataConfig);
+                DataConnection.StartRawDataRead();
+            }
 
             return string.Format
                 ("LIST {0}{1}",
@@ -48,6 +53,12 @@ namespace FtpClient
                     DataConnection.CloseConnection();
                     return true;
                 }
+
+                if (!ParseUnixListing)
+                {
+                    DataConnection.StartConnection(ParentService.DataConfig);
+                    DataConnection.StartRawDataRead();
+                }
                 TransferStarted = true;
             }
 
@@ -62,13 +73,27 @@ namespace FtpClient
             string DirectoryListing = Encoding.ASCII.GetString(Data.ToArray());
 
             string[] Lines = DirectoryListing.Split(new string[] { EOL }, StringSplitOptions.RemoveEmptyEntries);
-            foreach(string Line in Lines)
+            if (!ParseUnixListing)
             {
-                string[] Params = Line.Split(new string[] { " " }, StringSplitOptions.RemoveEmptyEntries);
-                if (Params.Length < 4) continue;
-                if (Params[2].Equals("<DIR>")) CurrentDir.AddSubdirectory(Params[3]);
-                else CurrentDir.AddFile(Params[3]);
+                foreach (string Line in Lines)
+                {
+                    string[] Params = Line.Split(new string[] { " " }, StringSplitOptions.RemoveEmptyEntries);
+                    if (Params.Length < 4) continue;
+                    if (Params[2].Equals("<DIR>")) CurrentDir.AddSubdirectory(Params[3]);
+                    else CurrentDir.AddFile(Params[3]);
+                }
             }
+            else
+            {
+                foreach (string Line in Lines)
+                {
+                    string[] Params = Line.Split(new string[] { " " }, StringSplitOptions.RemoveEmptyEntries);
+                    if (Params.Length < 9) continue;
+                    if (Params[0].StartsWith("d")) CurrentDir.AddSubdirectory(Params[8]);
+                    else CurrentDir.AddFile(Params[8]);
+                }
+            }
+
             OnDirectoryListed(true, CurrentDir);
             return true;
         }

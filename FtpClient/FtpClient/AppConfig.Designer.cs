@@ -32,10 +32,11 @@
             this.ButtonAccept = new System.Windows.Forms.Button();
             this.InFtpHostname = new System.Windows.Forms.TextBox();
             this.GroupFtp = new System.Windows.Forms.GroupBox();
+            this.label8 = new System.Windows.Forms.Label();
+            this.EnableUnixListing = new System.Windows.Forms.TrackBar();
+            this.label7 = new System.Windows.Forms.Label();
             this.CheckFtpSsl = new System.Windows.Forms.CheckBox();
             this.label6 = new System.Windows.Forms.Label();
-            this.InFtpRefrate = new System.Windows.Forms.TextBox();
-            this.label5 = new System.Windows.Forms.Label();
             this.InFtpPassword = new System.Windows.Forms.TextBox();
             this.label4 = new System.Windows.Forms.Label();
             this.InFtpUsername = new System.Windows.Forms.TextBox();
@@ -43,6 +44,7 @@
             this.InFtpPort = new System.Windows.Forms.TextBox();
             this.label2 = new System.Windows.Forms.Label();
             this.GroupFtp.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.EnableUnixListing)).BeginInit();
             this.SuspendLayout();
             // 
             // label1
@@ -56,7 +58,7 @@
             // 
             // ButtonAccept
             // 
-            this.ButtonAccept.Location = new System.Drawing.Point(148, 208);
+            this.ButtonAccept.Location = new System.Drawing.Point(148, 217);
             this.ButtonAccept.Name = "ButtonAccept";
             this.ButtonAccept.Size = new System.Drawing.Size(75, 23);
             this.ButtonAccept.TabIndex = 1;
@@ -74,10 +76,11 @@
             // 
             // GroupFtp
             // 
+            this.GroupFtp.Controls.Add(this.label8);
+            this.GroupFtp.Controls.Add(this.EnableUnixListing);
+            this.GroupFtp.Controls.Add(this.label7);
             this.GroupFtp.Controls.Add(this.CheckFtpSsl);
             this.GroupFtp.Controls.Add(this.label6);
-            this.GroupFtp.Controls.Add(this.InFtpRefrate);
-            this.GroupFtp.Controls.Add(this.label5);
             this.GroupFtp.Controls.Add(this.InFtpPassword);
             this.GroupFtp.Controls.Add(this.label4);
             this.GroupFtp.Controls.Add(this.InFtpUsername);
@@ -88,15 +91,42 @@
             this.GroupFtp.Controls.Add(this.label1);
             this.GroupFtp.Location = new System.Drawing.Point(12, 12);
             this.GroupFtp.Name = "GroupFtp";
-            this.GroupFtp.Size = new System.Drawing.Size(211, 190);
+            this.GroupFtp.Size = new System.Drawing.Size(211, 199);
             this.GroupFtp.TabIndex = 3;
             this.GroupFtp.TabStop = false;
             this.GroupFtp.Text = "FTP";
             // 
+            // label8
+            // 
+            this.label8.AutoSize = true;
+            this.label8.Location = new System.Drawing.Point(152, 156);
+            this.label8.Name = "label8";
+            this.label8.Size = new System.Drawing.Size(42, 13);
+            this.label8.TabIndex = 15;
+            this.label8.Text = "FileZilla";
+            // 
+            // EnableUnixListing
+            // 
+            this.EnableUnixListing.Location = new System.Drawing.Point(85, 147);
+            this.EnableUnixListing.Maximum = 1;
+            this.EnableUnixListing.Name = "EnableUnixListing";
+            this.EnableUnixListing.Size = new System.Drawing.Size(61, 45);
+            this.EnableUnixListing.TabIndex = 14;
+            this.EnableUnixListing.Scroll += new System.EventHandler(this.EnableUnixListing_Scroll);
+            // 
+            // label7
+            // 
+            this.label7.AutoSize = true;
+            this.label7.Location = new System.Drawing.Point(6, 156);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(73, 13);
+            this.label7.TabIndex = 13;
+            this.label7.Text = "Microsoft FTP";
+            // 
             // CheckFtpSsl
             // 
             this.CheckFtpSsl.AutoSize = true;
-            this.CheckFtpSsl.Location = new System.Drawing.Point(94, 155);
+            this.CheckFtpSsl.Location = new System.Drawing.Point(94, 127);
             this.CheckFtpSsl.Name = "CheckFtpSsl";
             this.CheckFtpSsl.Size = new System.Drawing.Size(15, 14);
             this.CheckFtpSsl.TabIndex = 12;
@@ -106,28 +136,11 @@
             // label6
             // 
             this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(6, 156);
+            this.label6.Location = new System.Drawing.Point(6, 128);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(49, 13);
             this.label6.TabIndex = 11;
             this.label6.Text = "Use SSL";
-            // 
-            // InFtpRefrate
-            // 
-            this.InFtpRefrate.Location = new System.Drawing.Point(94, 127);
-            this.InFtpRefrate.Name = "InFtpRefrate";
-            this.InFtpRefrate.Size = new System.Drawing.Size(100, 20);
-            this.InFtpRefrate.TabIndex = 10;
-            this.InFtpRefrate.TextChanged += new System.EventHandler(this.InRefrate_TextChanged);
-            // 
-            // label5
-            // 
-            this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(6, 130);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(79, 13);
-            this.label5.TabIndex = 9;
-            this.label5.Text = "Refresh rate (s)";
             // 
             // InFtpPassword
             // 
@@ -185,7 +198,7 @@
             this.AcceptButton = this.ButtonAccept;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(235, 241);
+            this.ClientSize = new System.Drawing.Size(235, 246);
             this.Controls.Add(this.GroupFtp);
             this.Controls.Add(this.ButtonAccept);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
@@ -193,6 +206,7 @@
             this.Text = "Setup";
             this.GroupFtp.ResumeLayout(false);
             this.GroupFtp.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.EnableUnixListing)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -203,8 +217,6 @@
         private System.Windows.Forms.Button ButtonAccept;
         private System.Windows.Forms.TextBox InFtpHostname;
         private System.Windows.Forms.GroupBox GroupFtp;
-        private System.Windows.Forms.TextBox InFtpRefrate;
-        private System.Windows.Forms.Label label5;
         private System.Windows.Forms.TextBox InFtpPassword;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.TextBox InFtpUsername;
@@ -213,5 +225,8 @@
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.CheckBox CheckFtpSsl;
         private System.Windows.Forms.Label label6;
+        private System.Windows.Forms.Label label7;
+        private System.Windows.Forms.Label label8;
+        private System.Windows.Forms.TrackBar EnableUnixListing;
     }
 }

@@ -3,7 +3,7 @@ using System.Net;
 
 namespace FtpClient
 {
-    public class FcModeToggle : FtpCommand
+    public class FcRequestDynamicPort : FtpCommand
     {
         bool Success = false;
         UInt16 TargetPort;

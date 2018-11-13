@@ -178,7 +178,7 @@ namespace FtpClient
         }
         private void RequestListDirectory(FtpDirectory NewDir)
         {
-            FcModeToggle PasvCmd = new FcModeToggle();
+            FcRequestDynamicPort PasvCmd = new FcRequestDynamicPort();
             Service.PushNewCommand(PasvCmd);
 
             FcListDirectory Cmd = new FcListDirectory(NewDir);
@@ -226,11 +226,17 @@ namespace FtpClient
 
             if(IsDir)
             {
-                FtpDirectory NewDir = CurrentDir.GetSubdirectory(Target.Substring(0, Target.Length - 1));
-                if(NewDir == null)
+                string[] AbsPath = Target.Split(new char[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
+
+                FtpDirectory NewDir = CurrentDir;
+                for (int i = 0; i < AbsPath.Length; ++i)
                 {
-                    MessageBox.Show("Internal error: selected directory doesn't exist in memory");
-                    return;
+                    NewDir = NewDir.GetSubdirectory(AbsPath[i]);
+                    if (NewDir == null)
+                    {
+                        MessageBox.Show("Internal error: selected directory doesn't exist in memory");
+                        return;
+                    }
                 }
                 RequestChangeDirectory(NewDir);
             }
@@ -253,16 +259,11 @@ namespace FtpClient
             //Service.PushNewCommand(Dir);
 
             ++CommandsLeft;
-            Service.PushNewCommand(new FcModeToggle());
+            Service.PushNewCommand(new FcRequestDynamicPort());
             RecursiveTree = new FtpDirectory();
             FcListDirectory Dir = new FcListDirectory(RecursiveTree);
             Dir.OnDirectoryListed += RecursiveOnDirectoryListed;
             Service.PushNewCommand(Dir);
-        }
-
-        private void RecursiveOnDirectoryChanged(bool Success, FtpDirectory Directory)
-        {
-            
         }
 
         private void RecursiveOnDirectoryListed(bool Success, FtpDirectory Directory)
@@ -272,7 +273,7 @@ namespace FtpClient
             foreach (FtpDirectory Subdir in Directory.Subdirectories)
             {
                 ++CommandsLeft;
-                Service.PushNewCommand(new FcModeToggle());
+                Service.PushNewCommand(new FcRequestDynamicPort());
                 FcListDirectory Dir = new FcListDirectory(Subdir);
                 Dir.OnDirectoryListed += RecursiveOnDirectoryListed;
                 Service.PushNewCommand(Dir);
@@ -282,6 +283,8 @@ namespace FtpClient
             {
                 Invoke(new Action(() =>
                 {
+                    ListboxDirContents.Items.Clear();
+                    CurrentDir = RecursiveTree;
                     RecursivePrintDirectory(RecursiveTree);
                 }));
             }
@@ -289,10 +292,9 @@ namespace FtpClient
 
         private void RecursivePrintDirectory(FtpDirectory Directory)
         {
-            ListboxDirContents.Items.Clear();
-            //ListboxDirContents.Items.Add(Directory.PathString() + "/");
             foreach(FtpDirectory Subdir in Directory.Subdirectories)
                 RecursivePrintDirectory(Subdir);
+            ListboxDirContents.Items.Add(Directory.PathString());
             foreach(FtpFile File in Directory.Files)
                 ListboxDirContents.Items.Add(File.GetDirectory().PathString() + File.FileName);
 
