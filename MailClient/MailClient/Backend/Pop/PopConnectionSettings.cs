@@ -17,14 +17,7 @@ namespace MailClient
             RefreshRateSeconds = 5.0;
         }
 
-        public void PopCloneFrom(PopConnectionSettings In)
-        {
-            CloneFrom(In);
-            RefreshRateSeconds = In.RefreshRateSeconds;
-        }
-
-                            
-        public override Int16 GetDefaultPort()
+        public override UInt16 GetDefaultPort()
         {
             return 110;
         }
@@ -43,6 +36,11 @@ namespace MailClient
             Writer.WriteStartElement("refrate");
             Writer.WriteAttributeString("value", RefreshRateSeconds.ToString());
             Writer.WriteEndElement();
+        }
+
+        public override void CloneChildData(NetConnectionSettings InSettings)
+        {
+            RefreshRateSeconds = ((PopConnectionSettings)InSettings).RefreshRateSeconds;
         }
     }
 }

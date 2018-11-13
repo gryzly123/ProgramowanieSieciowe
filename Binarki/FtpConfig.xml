@@ -1,0 +1,1 @@
+<?xml version="1.0" encoding="us-ascii"?><appcfg><hostname value="test.rebex.net" /><port value="21" /><username value="demo" /><password value="password" /><ssl value="False" /><unixlisting value="False" /></appcfg>

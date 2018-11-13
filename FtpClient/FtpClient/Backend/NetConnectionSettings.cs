@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Xml;
 
-namespace MailClient
+namespace FtpClient
 {
     public abstract class NetConnectionSettings
     {
@@ -18,7 +18,7 @@ namespace MailClient
             Port = GetDefaultPort();
             UserLogin = "";
             UserPassword = "";
-            UseSsl = true;
+            UseSsl = false;
         }
 
         public abstract UInt16 GetDefaultPort();
