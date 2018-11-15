@@ -39,6 +39,7 @@
             this.label1 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
+            this.ProgressbarCrawler = new System.Windows.Forms.ProgressBar();
             this.SuspendLayout();
             // 
             // ButtonBeginCrawling
@@ -136,11 +137,21 @@
             this.label4.TabIndex = 12;
             this.label4.Text = "Output stats file:";
             // 
+            // ProgressbarCrawler
+            // 
+            this.ProgressbarCrawler.Location = new System.Drawing.Point(12, 439);
+            this.ProgressbarCrawler.MarqueeAnimationSpeed = 0;
+            this.ProgressbarCrawler.Name = "ProgressbarCrawler";
+            this.ProgressbarCrawler.Size = new System.Drawing.Size(354, 10);
+            this.ProgressbarCrawler.Style = System.Windows.Forms.ProgressBarStyle.Continuous;
+            this.ProgressbarCrawler.TabIndex = 13;
+            // 
             // MainWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(379, 452);
+            this.Controls.Add(this.ProgressbarCrawler);
             this.Controls.Add(this.label4);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.label1);
@@ -172,6 +183,7 @@
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.ProgressBar ProgressbarCrawler;
     }
 }
 

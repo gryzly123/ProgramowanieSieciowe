@@ -18,7 +18,7 @@ namespace HttpCrawler
             Cfg.RemotePath = TextboxPath.Text;
             Cfg.OutputPath = TextboxOutXml.Text;
             Cfg.DataValid = int.TryParse(TextboxDepth.Text, out Cfg.CrawlerMaxDepth) && (Cfg.CrawlerMaxDepth > 0);
-            ButtonBeginCrawling.Enabled = Cfg.DataValid;
+            ButtonBeginCrawling.Enabled = Cfg.DataValid && Session == null;
         }
 
         private void RequestUpdateConfig(object sender, EventArgs e)
@@ -39,9 +39,26 @@ namespace HttpCrawler
         private void ButtonBeginCrawling_Click(object sender, EventArgs e)
         {
             ButtonBeginCrawling.Enabled = false;
+            ListboxLog.Items.Clear();
+
             Session = new CrawlerSession();
+            Session.OnCrawlerProgress += HandleOnCrawlerProgress;
             Session.OnCrawlerFinished += HandleOnCrawlerFinished;
             Session.BeginSession(Cfg);
+        }
+
+        private void HandleOnCrawlerProgress(CrawlerSession Session, int DocumentsParsed, int DocumentsLeft)
+        {
+            Invoke(new Action(() =>
+            {
+                ProgressbarCrawler.Maximum = DocumentsParsed + DocumentsLeft;
+                ProgressbarCrawler.Value = Math.Min(ProgressbarCrawler.Maximum, DocumentsParsed + 1);
+                ProgressbarCrawler.Value = Math.Max(DocumentsParsed, 0);
+                ListboxLog.Items.Add(
+                    String.Format("{0}/{1} documents parsed",
+                    DocumentsParsed.ToString(),
+                    (DocumentsParsed + DocumentsLeft).ToString()));
+            }));
         }
 
         private void HandleOnCrawlerFinished(CrawlerSession Session)
@@ -51,6 +68,8 @@ namespace HttpCrawler
             {
                 ListboxLog.Items.Clear();
                 PrintDoc(Doc);
+                Session = null;
+                ButtonBeginCrawling.Enabled = true;
             }));
         }
 
@@ -61,9 +80,9 @@ namespace HttpCrawler
 
             ListboxLog.Items.Add(Separator + " " + Doc.Href);
             foreach (string Img in Doc.ImageAddresses)
-                ListboxLog.Items.Add(Separator + "<img> " + Img);
+                ListboxLog.Items.Add(Separator + "  <img> " + Img);
             foreach (string Mail in Doc.MailAddresses)
-                ListboxLog.Items.Add(Separator + "<img> " + Mail);
+                ListboxLog.Items.Add(Separator + "<mail> " + Mail);
             foreach (HttpDocument Subdoc in Doc.Subdocuments)
                 PrintDoc(Subdoc);
         }

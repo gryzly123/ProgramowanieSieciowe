@@ -9,6 +9,7 @@ using System.Threading;
 namespace HttpCrawler
 {
     public delegate void CrawlerFinished(CrawlerSession Session);
+    public delegate void CrawlerProgress(CrawlerSession Session, int DocumentsParsed, int DocumentsLeft);
 
     public struct CrawlerConfig
     {
@@ -22,11 +23,13 @@ namespace HttpCrawler
     {
         List<string> TotalScannedUrls = new List<string>();
         Queue<HttpDocument> ScanTasks = new Queue<HttpDocument>();
+        int DocumentsParsed = 0;
 
         HttpDocument RootDocument;
         internal CrawlerConfig Config;
 
         public CrawlerFinished OnCrawlerFinished;
+        public CrawlerProgress OnCrawlerProgress;
 
         public void BeginSession(CrawlerConfig InCfg)
         {
@@ -51,11 +54,10 @@ namespace HttpCrawler
             }
             while (TotalScannedUrls.Contains(CurrentDoc.Href));
             TotalScannedUrls.Add(CurrentDoc.Href);
-            OnCrawlerFinished(this);
+            //OnCrawlerFinished(this);
             //rozpoczynam jego analizę
             CurrentDoc.OnDocumentParsed += OnDocumentFinished;
-            CurrentDoc.DownloadDocument(this);
-//            new Thread(new ThreadStart(() => { CurrentDoc.DownloadDocument(this); })).Start();
+            new Thread(new ThreadStart(() => { CurrentDoc.DownloadDocument(this); })).Start();
         }
 
         internal HttpDocument GetRootDocument()
@@ -65,17 +67,15 @@ namespace HttpCrawler
 
         private void OnDocumentFinished(HttpDocument Doc)
         {
-            //jeśli skanowanie dokumentu się nie powiodło, nie dodaję jego dzieci do przeszukania
-            if (Doc.CrawlerStatus != HttpDocument.Status.ScanFinished) return;
+            ++DocumentsParsed;
 
-            //jeśli maksymalna głębokość została osiągnięta, kończę
-            if (Doc.Depth == Config.CrawlerMaxDepth - 1) return;
-
-            //dodaję poddokumenty do kolejki
-            foreach (HttpDocument NextDoc in Doc.Subdocuments)
-                ScanTasks.Enqueue(NextDoc);
+            if (Doc.CrawlerStatus == HttpDocument.Status.ScanFinished //jeśli skanowanie dokumentu się powiodło...
+                && Doc.Depth < Config.CrawlerMaxDepth - 1) //...i nie jest on na maksymalnej głębokości,
+                foreach (HttpDocument NextDoc in Doc.Subdocuments)
+                    ScanTasks.Enqueue(NextDoc); //to dodaję poddokumenty do kolejki
 
             //rozpoczynam kolejny dokument
+            OnCrawlerProgress(this, DocumentsParsed, ScanTasks.Count);
             BeginNextDocument();
         }
 
