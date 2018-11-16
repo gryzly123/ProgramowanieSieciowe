@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
+using System.Xml;
 
 namespace HttpCrawler
 {
@@ -42,28 +41,33 @@ namespace HttpCrawler
 
         private void BeginNextDocument()
         {
-            //szukam kolejnego unikatowego dokumentu
             HttpDocument CurrentDoc;
+            //szukam kolejnego unikatowego dokumentu
             do
             {
+                //pobieram nowy dokument ze stosu
                 if(ScanTasks.Count > 0) CurrentDoc = ScanTasks.Dequeue();
+                //jeśli nie ma już co pobrać, kończę proces
                 else
                 {
                     OnCrawlerFinished(this);
                     return;
                 }
 
+                //jeśli podany URL był już zeskanowany gdzie indziej, flaguję go jako pominięty
                 if (TotalScannedUrls.Contains(CurrentDoc.Href))
                     CurrentDoc.CrawlerStatus = HttpDocument.Status.DontScan;
             }
             while (CurrentDoc.CrawlerStatus != HttpDocument.Status.ScanPending);
+
+            //znalazłem element, dodaję go do listy już zeskanowanych
             TotalScannedUrls.Add(CurrentDoc.Href);
 
             //"human element" - do i tak już zmiennego czasu parsowania
-            //dodaję jeszcze losowy delay pomiędzy zapytaniami
+            //poprzedniego dokumentu dodaję jeszcze losowy delay pomiędzy zapytaniami
             Thread.Sleep(WaitPeriod.Next(0, 500));
 
-            //rozpoczynam pobranie i analizę
+            //rozpoczynam pobieranie i analizę
             CurrentDoc.OnDocumentParsed += OnDocumentFinished;
             new Thread(new ThreadStart(() => { CurrentDoc.DownloadDocument(this); })).Start();
         }
@@ -87,6 +91,31 @@ namespace HttpCrawler
             BeginNextDocument();
         }
 
+        public bool PrintCrawlSessionToXml()
+        {
+            XmlWriter Xml;
+            try { Xml = XmlWriter.Create(Config.OutputPath); }
+            catch { return false; }
+
+            try
+            {
+                Xml.WriteStartDocument();
+                Xml.WriteStartElement("SITE");
+                  Xml.WriteAttributeString("url", Config.RemotePath);
+                  Xml.WriteAttributeString("depth", Config.CrawlerMaxDepth.ToString());
+                  RootDocument.PrintToXmlRecursive(Xml);
+                Xml.WriteEndElement();
+                Xml.WriteEndDocument();
+                Xml.Close();
+                return true;
+            }
+            catch
+            {
+                Xml.Close();
+                return false;
+            }
+        }
+
     }
     public delegate void DocumentParsed(HttpDocument Doc);
 
@@ -101,10 +130,15 @@ namespace HttpCrawler
             DontScan
         };
 
+        //wejścia:
         public string Href;
+        public int Depth;
+
+        //status:
         public string Errmsg;
         public Status CrawlerStatus = Status.ScanPending;
-        public int Depth;
+
+        //wyjścia:
         public List<HttpDocument> Subdocuments = new List<HttpDocument>();
         public List<string> MailAddresses = new List<string>();
         public List<string> ImageAddresses = new List<string>();
@@ -124,11 +158,11 @@ namespace HttpCrawler
 
         private string AbsoluteLink(string Relative)
         {
-            if (Relative.StartsWith("http")) return Relative;
+            if (Relative.StartsWith("http")) return Relative; //wlicza także https
 
-            int kek = Href.LastIndexOf('/');
-            string Base = Href.Substring(0, kek);
-            return Base + "/" + Relative;
+            return string.Format("{0}/{1}",
+                Href.Substring(0, Href.LastIndexOf('/')),
+                Relative);
         }
 
         public HttpDocument(string TargetHref, int CurrentDepth)
@@ -144,17 +178,21 @@ namespace HttpCrawler
             try
             {
                 CrawlerStatus = Status.ScanInProgress;
-                BuildHostname(out string Hostname, out bool UseSsl);
+
+                string Hostname; bool UseSsl;
+                BuildHostname(out Hostname, out UseSsl);
                 string RelativePath = Href.Split(new string[] { Hostname }, StringSplitOptions.None)[1];
 
                 HttpConnection TmpConnection = new HttpConnection();
                 TmpConnection.StartConnection(Hostname, UseSsl);
-                TmpConnection.ExecuteRequest(RelativePath, out List<byte> Data);
+
+                List<byte> Data;
+                TmpConnection.ExecuteRequest(RelativePath, out Data);
                 TmpConnection.CloseConnection();
 
                 CrawlerStatus = ParseDocument(Data) ? Status.ScanFinished : Status.ScanFailed;
             }
-            catch { CrawlerStatus = Status.ScanFailed; }
+            catch { Errmsg = "tcp error"; CrawlerStatus = Status.ScanFailed; }
             OnDocumentParsed(this);
         }
 
@@ -173,15 +211,17 @@ namespace HttpCrawler
             //Znajduję obrazki po <img [...] src="link" [...]>
             Regex ImgMatcher = new Regex("<img(.+?)src=\"(?<image_link>(.+?))\"(.+?)>");
             foreach (Match M in ImgMatcher.Matches(Response))
-                ImageAddresses.Add(AbsoluteLink(M.Groups["image_link"].Value));
+                ImageAddresses.Add(M.Groups["image_link"].Value);
+
 
             //Znajduję maile po [...]@[...]
-            //  regex uwzględnia maile w <a>, ponieważ nie interesują go
-            //  znaki poprzedzające i następujące wokół adresu
+            //  regex uwzględnia maile w <a>, ponieważ nie
+            //  interesują go znaki poprzedzające i następujące wokół adresu
             Regex MailMatcher = new Regex("(?<left>([a-zA-Z0-9._-]+))@(?<right>([a-zA-Z0-9._-]+))");
             MatchCollection Col = MailMatcher.Matches(Response);
             foreach (Match M in Col)
                 MailAddresses.Add((M.Groups["left"] + "@" + M.Groups["right"]).Trim());
+
 
             //Znajduję linki po <a [...] href="[...]" [...]>
             Regex HtmMatcher = new Regex("<a(.+?)href=\"(?<url>(.+?))\"(.+?)>");
@@ -190,10 +230,50 @@ namespace HttpCrawler
                 //...ale interesują mnie tylko pliki HTML i HTM zgodnie z poleceniem
                 //(przy okazji wycina to duplikaty z adresów email w <a>)
                 string Url = M.Groups["url"].Value;
-                if(Url.EndsWith(".html") || Url.EndsWith(".htm")) Subdocuments.Add(new HttpDocument(AbsoluteLink(Url), Depth + 1));
+                if(Url.EndsWith(".html") || Url.EndsWith(".htm"))
+                    Subdocuments.Add(new HttpDocument(AbsoluteLink(Url), Depth + 1));
             }
 
             return true;
+        }
+
+        internal void PrintToXmlRecursive(XmlWriter Xml)
+        {
+            foreach (string Img in ImageAddresses)
+            {
+                Xml.WriteStartElement("IMAGE");
+                  Xml.WriteString(Img);
+                Xml.WriteEndElement();
+            }
+            foreach (string Mail in MailAddresses)
+            {
+                Xml.WriteStartElement("EMAIL");
+                  Xml.WriteString(Mail);
+                Xml.WriteEndElement();
+            }
+            foreach (HttpDocument Subdoc in Subdocuments)
+            {
+                Xml.WriteStartElement("FILE");
+                  Xml.WriteAttributeString("href", Subdoc.Href);
+                  Xml.WriteAttributeString("state", Subdoc.StatusString());
+                  Subdoc.PrintToXmlRecursive(Xml);
+                Xml.WriteEndElement();
+            }
+        }
+
+        private string StatusString()
+        {
+            switch (CrawlerStatus)
+            {
+                case Status.ScanFinished: return "parsed";
+                case Status.ScanFailed:   return string.Format("failed[{0}]", Errmsg);
+                case Status.DontScan:     return "duplicate";
+                case Status.ScanPending:  return "max depth";
+
+                case Status.ScanInProgress:
+                default:
+                    throw new Exception("undefined behaviour");
+            }
         }
     }
 }

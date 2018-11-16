@@ -20,22 +20,19 @@ namespace HttpCrawler
             Cfg.DataValid = int.TryParse(TextboxDepth.Text, out Cfg.CrawlerMaxDepth) && (Cfg.CrawlerMaxDepth > 0);
             ButtonBeginCrawling.Enabled = Cfg.DataValid && (Session == null);
         }
-
+        #region From event handlers
         private void RequestUpdateConfig(object sender, EventArgs e)
         {
             SetupConfig();
         }
-
         private void ButtonChooseXmlPath_Click(object sender, EventArgs e)
         {
             DialogSaveXml.ShowDialog();
         }
-
         private void DialogSaveXml_FileOk(object sender, System.ComponentModel.CancelEventArgs e)
         {
             TextboxOutXml.Text = DialogSaveXml.FileName;
         }
-
         private void ButtonBeginCrawling_Click(object sender, EventArgs e)
         {
             ButtonBeginCrawling.Enabled = false;
@@ -46,7 +43,9 @@ namespace HttpCrawler
             Session.OnCrawlerFinished += HandleOnCrawlerFinished;
             Session.BeginSession(Cfg);
         }
-
+        #endregion
+        
+        #region Crawler event handlers
         private void HandleOnCrawlerProgress(CrawlerSession Session, int DocumentsParsed, int DocumentsLeft)
         {
             Invoke(new Action(() =>
@@ -56,24 +55,23 @@ namespace HttpCrawler
                 ProgressbarCrawler.Value = Math.Max(DocumentsParsed, 0);
                 ListboxLog.Items.Clear();
                 ListboxLog.Items.Add(
-                    String.Format("{0}/{1} documents parsed",
+                    string.Format("{0}/{1} documents parsed",
                     DocumentsParsed.ToString(),
                     (DocumentsParsed + DocumentsLeft).ToString()));
             }));
         }
-
         private void HandleOnCrawlerFinished(CrawlerSession Session)
         {
-            HttpDocument Doc = Session.GetRootDocument();
             Invoke(new Action(() =>
             {
                 ListboxLog.Items.Clear();
-                PrintDoc(Doc);
-                Session = null;
+                if (!Session.PrintCrawlSessionToXml()) MessageBox.Show("Could not create XML file.");
+                PrintDoc(Session.GetRootDocument());
+                this.Session = null;
                 ButtonBeginCrawling.Enabled = true;
+                ProgressbarCrawler.Value = ProgressbarCrawler.Maximum;
             }));
         }
-
         private void PrintDoc(HttpDocument Doc)
         {
             string Separator = "";
@@ -87,5 +85,6 @@ namespace HttpCrawler
             foreach (HttpDocument Subdoc in Doc.Subdocuments)
                 PrintDoc(Subdoc);
         }
+        #endregion
     }
 }

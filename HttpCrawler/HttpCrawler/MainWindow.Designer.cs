@@ -108,6 +108,8 @@
             // 
             // DialogSaveXml
             // 
+            this.DialogSaveXml.DefaultExt = "xml";
+            this.DialogSaveXml.Filter = "XML file|*.xml";
             this.DialogSaveXml.FileOk += new System.ComponentModel.CancelEventHandler(this.DialogSaveXml_FileOk);
             // 
             // label1

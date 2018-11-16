@@ -3,7 +3,6 @@ using System.Text;
 using System.Net.Sockets;
 using System.Net.Security;
 using System.Collections.Generic;
-using System.Threading;
 
 namespace HttpCrawler
 {
@@ -54,46 +53,11 @@ namespace HttpCrawler
                 NetStream.Close();
                 NetSocket.Close();
             }
-            catch
-            {
-                System.Windows.Forms.MessageBox.Show("Connection was not closed gracefully.");
-            }
+            catch { System.Diagnostics.Debug.WriteLine("Connection was not closed gracefully."); }
 
             ConnectionOpened = false;
             NetSocket = null;
             return true;
-        }
-
-        private bool RawReadEnabled = false;
-        private List<byte> RawArray;
-        private Thread RawWorker;
-
-        public bool StartRawDataRead()
-        {
-            if (RawReadEnabled) return false;
-
-            RawReadEnabled = true;
-            RawArray = new List<byte>();
-            RawWorker = new Thread(() => RawRead());
-            RawWorker.Start();
-            return true;
-        }
-
-        public bool StopRawDataRead(out List<byte> ReceivedData)
-        {
-            if(RawWorker != null) RawWorker.Abort();
-            ReceivedData = RawArray;
-
-            if (!RawReadEnabled) return false;
-            RawReadEnabled = false;
-            return true;
-        }
-
-        private void RawRead()
-        {
-                byte[] PartialResponse = new byte[NetSocket.ReceiveBufferSize];
-                int ResponseLen = NetStream.Read(PartialResponse, 0, NetSocket.ReceiveBufferSize);
-                RawArray.AddRange(PartialResponse);
         }
 
         public bool ExecuteRequest(string RelativePath, out List<byte> Response)
