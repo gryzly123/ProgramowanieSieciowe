@@ -18,7 +18,7 @@ namespace HttpCrawler
             Cfg.RemotePath = TextboxPath.Text;
             Cfg.OutputPath = TextboxOutXml.Text;
             Cfg.DataValid = int.TryParse(TextboxDepth.Text, out Cfg.CrawlerMaxDepth) && (Cfg.CrawlerMaxDepth > 0);
-            ButtonBeginCrawling.Enabled = Cfg.DataValid && Session == null;
+            ButtonBeginCrawling.Enabled = Cfg.DataValid && (Session == null);
         }
 
         private void RequestUpdateConfig(object sender, EventArgs e)
@@ -54,6 +54,7 @@ namespace HttpCrawler
                 ProgressbarCrawler.Maximum = DocumentsParsed + DocumentsLeft;
                 ProgressbarCrawler.Value = Math.Min(ProgressbarCrawler.Maximum, DocumentsParsed + 1);
                 ProgressbarCrawler.Value = Math.Max(DocumentsParsed, 0);
+                ListboxLog.Items.Clear();
                 ListboxLog.Items.Add(
                     String.Format("{0}/{1} documents parsed",
                     DocumentsParsed.ToString(),
@@ -82,7 +83,7 @@ namespace HttpCrawler
             foreach (string Img in Doc.ImageAddresses)
                 ListboxLog.Items.Add(Separator + "  <img> " + Img);
             foreach (string Mail in Doc.MailAddresses)
-                ListboxLog.Items.Add(Separator + "<mail> " + Mail);
+                ListboxLog.Items.Add(Separator + "  <mail> " + Mail);
             foreach (HttpDocument Subdoc in Doc.Subdocuments)
                 PrintDoc(Subdoc);
         }

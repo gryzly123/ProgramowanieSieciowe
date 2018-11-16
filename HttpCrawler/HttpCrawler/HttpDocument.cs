@@ -24,6 +24,7 @@ namespace HttpCrawler
         List<string> TotalScannedUrls = new List<string>();
         Queue<HttpDocument> ScanTasks = new Queue<HttpDocument>();
         int DocumentsParsed = 0;
+        Random WaitPeriod = new Random();
 
         HttpDocument RootDocument;
         internal CrawlerConfig Config;
@@ -51,11 +52,18 @@ namespace HttpCrawler
                     OnCrawlerFinished(this);
                     return;
                 }
+
+                if (TotalScannedUrls.Contains(CurrentDoc.Href))
+                    CurrentDoc.CrawlerStatus = HttpDocument.Status.DontScan;
             }
-            while (TotalScannedUrls.Contains(CurrentDoc.Href));
+            while (CurrentDoc.CrawlerStatus != HttpDocument.Status.ScanPending);
             TotalScannedUrls.Add(CurrentDoc.Href);
-            //OnCrawlerFinished(this);
-            //rozpoczynam jego analizę
+
+            //"human element" - do i tak już zmiennego czasu parsowania
+            //dodaję jeszcze losowy delay pomiędzy zapytaniami
+            Thread.Sleep(WaitPeriod.Next(0, 500));
+
+            //rozpoczynam pobranie i analizę
             CurrentDoc.OnDocumentParsed += OnDocumentFinished;
             new Thread(new ThreadStart(() => { CurrentDoc.DownloadDocument(this); })).Start();
         }
@@ -158,15 +166,29 @@ namespace HttpCrawler
                 Errmsg = Response.Substring(0, Response.IndexOf("\r\n"));
                 return false;
             }
+
+            //Oddzielam odpowiedź od nagłówka
             Response = Response.Substring(Response.IndexOf("\r\n\r\n") + 4);
 
+            //Znajduję obrazki po <img [...] src="link" [...]>
             Regex ImgMatcher = new Regex("<img(.+?)src=\"(?<image_link>(.+?))\"(.+?)>");
             foreach (Match M in ImgMatcher.Matches(Response))
                 ImageAddresses.Add(AbsoluteLink(M.Groups["image_link"].Value));
 
+            //Znajduję maile po [...]@[...]
+            //  regex uwzględnia maile w <a>, ponieważ nie interesują go
+            //  znaki poprzedzające i następujące wokół adresu
+            Regex MailMatcher = new Regex("(?<left>([a-zA-Z0-9._-]+))@(?<right>([a-zA-Z0-9._-]+))");
+            MatchCollection Col = MailMatcher.Matches(Response);
+            foreach (Match M in Col)
+                MailAddresses.Add((M.Groups["left"] + "@" + M.Groups["right"]).Trim());
+
+            //Znajduję linki po <a [...] href="[...]" [...]>
             Regex HtmMatcher = new Regex("<a(.+?)href=\"(?<url>(.+?))\"(.+?)>");
             foreach (Match M in HtmMatcher.Matches(Response))
             {
+                //...ale interesują mnie tylko pliki HTML i HTM zgodnie z poleceniem
+                //(przy okazji wycina to duplikaty z adresów email w <a>)
                 string Url = M.Groups["url"].Value;
                 if(Url.EndsWith(".html") || Url.EndsWith(".htm")) Subdocuments.Add(new HttpDocument(AbsoluteLink(Url), Depth + 1));
             }
